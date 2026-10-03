@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3]
+
+[ext_resource type="Script" path="res://data/monster_data.gd" id="1_8hoqf"]
+
+[resource]
+script = ExtResource("1_8hoqf")
+id = "rats_geants"
+display_name = "Rats géants"
+hp = 8
+atk = 3
+special = "swarm"
+special_name = "Essaim"
+special_desc = "attaque deux fois ce tour"
+special_value = 2.0
+quip = "Classique de niveau 1. Personne n'est impressionné."

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3]
+
+[ext_resource type="Script" path="res://data/monster_data.gd" id="1_36rnq"]
+
+[resource]
+script = ExtResource("1_36rnq")
+id = "mimic"
+display_name = "Mimic"
+hp = 18
+atk = 7
+cost = 2
+behaviour = "murder_hobo"
+special = "double_damage"
+special_name = "Croc"
+special_desc = "×2 dégâts ce tour"
+special_value = 2.0
+quip = "Quelqu'un va toucher au coffre. Quelqu'un touche toujours au coffre."

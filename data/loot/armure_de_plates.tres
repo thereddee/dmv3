@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="LootData" format=3]
+
+[ext_resource type="Script" path="res://data/loot_data.gd" id="1_p4m1x"]
+
+[resource]
+script = ExtResource("1_p4m1x")
+id = "armure_de_plates"
+display_name = "Armure de plates"
+hp = 18
+satisfaction = 14
+class_key = "tank"

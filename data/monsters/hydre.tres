@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3]
+
+[ext_resource type="Script" path="res://data/monster_data.gd" id="1_3uhm6"]
+
+[resource]
+script = ExtResource("1_3uhm6")
+id = "hydre"
+display_name = "Hydre"
+hp = 40
+atk = 9
+cost = 5
+behaviour = "multi"
+special = "regen"
+special_name = "Régénération"
+special_desc = "+10 HP"
+special_value = 10.0
+quip = "Trois têtes, trois fois plus de jets de dés."

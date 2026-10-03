@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ArchetypeData" format=3]
+
+[ext_resource type="Script" path="res://data/archetype_data.gd" id="1_pci8f"]
+
+[resource]
+script = ExtResource("1_pci8f")
+key = "rule_lawyer"
+display_name = "Rule Lawyer"
+satisfaction_bonus = 4
+satisfaction_malus = 10
+blurb = "Aime les petits combats propres. Déteste le Fudge."

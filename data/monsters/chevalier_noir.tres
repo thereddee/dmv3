@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3]
+
+[ext_resource type="Script" path="res://data/monster_data.gd" id="1_2vxqx"]
+
+[resource]
+script = ExtResource("1_2vxqx")
+id = "chevalier_noir"
+display_name = "Chevalier noir"
+hp = 32
+atk = 11
+cost = 4
+behaviour = "strongest"
+special = "monologue"
+special_name = "Monologue"
+special_desc = "pas d'attaque, +8 satisfaction à tous"
+special_value = 8.0
+flags = Array[String](["nostun"])
+quip = "Il a un backstory de douze pages."

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PlayerData" format=3]
+
+[ext_resource type="Script" path="res://data/player_data.gd" id="1_pdyos"]
+
+[resource]
+script = ExtResource("1_pdyos")
+display_name = "Mathieu"
+seat = 3
+class_key = "healer"
+archetype_key = "quiet"
+atk = 3

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3]
+
+[ext_resource type="Script" path="res://data/monster_data.gd" id="1_vkc32"]
+
+[resource]
+script = ExtResource("1_vkc32")
+id = "assassin"
+display_name = "Assassin"
+hp = 14
+atk = 9
+cost = 3
+behaviour = "assassin"
+special = "double_damage"
+special_name = "Coup dans le dos"
+special_desc = "×2 dégâts ce tour"
+special_value = 2.0
+quip = "Il vise le healer. C'est pas personnel."

@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Derrière le paravent — prototype battler (reference implementation)</title>
+<style>
+:root{--surface-1:#f5f3ee;--surface-2:#fff;--border:#d8d4cc;--border-accent:#2f6fd6;--border-danger:#c2410c;--text-secondary:#666;--text-muted:#999;--text-accent:#1d4ed8;--text-danger:#b91c1c;--bg-accent:#e8eefc;--fill-accent:#2f6fd6;--on-accent:#fff;--fill-danger:#dc2626;--fill-success:#16a34a;--radius:8px}
+@media (prefers-color-scheme:dark){:root{--surface-1:#1b1a18;--surface-2:#262522;--border:#3a3835;--text-secondary:#aaa;--text-muted:#777;--bg-accent:#1e2a44;--text-accent:#9db8ff}body{background:#111;color:#eee}}
+body{font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:12px}
+button{font:inherit;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:inherit;cursor:pointer}
+.seat{background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:8px 10px;cursor:pointer}
+.seat.dead{background:var(--surface-1)}.seat.pick{border:2px solid var(--border-accent)}.seat.aim{border:2px solid var(--border-danger)}
+.card{background:var(--surface-2);border:0.5px solid var(--border);border-radius:var(--radius);padding:7px 8px;cursor:pointer}
+.card.sel{border:2px solid var(--border-accent)}.card.used{opacity:.45;cursor:default}
+.mon{background:var(--surface-2);border:0.5px solid var(--border);border-radius:var(--radius);padding:6px 8px;font-size:12px;cursor:pointer}
+.mon.ready{border-color:var(--border-accent)}
+.bar{height:5px;background:var(--surface-1);border-radius:3px;margin-top:3px}.bar div{height:5px;border-radius:3px}
+.pill{font-size:11px;padding:1px 6px;border-radius:var(--radius);display:inline-block;margin-right:3px}
+.ph{background:#FAEEDA;color:#633806}.dt{background:#E1F5EE;color:#085041}.tx{background:#FBEAF0;color:#72243E}.px{background:#EAF3DE;color:#27500A}
+.tank{background:#E6F1FB;color:#0C447C}.heal{background:#EAF3DE;color:#27500A}.dps{background:#FAECE7;color:#712B13}.cc{background:#EEEDFE;color:#3C3489}
+.lbl{font-size:12px;color:var(--text-secondary);margin:10px 0 5px}
+.log div{padding:3px 0;border-bottom:0.5px solid var(--border)}
+.act{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+</style></head><body>
+<div style="background:var(--surface-1);border-radius:12px;padding:12px;margin:0.5rem 0">
+<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-secondary)"><span id="hdr"></span><span id="score"></span></div>
+<div id="clock" style="font-size:12px;color:var(--text-secondary);margin-top:2px"></div>
+<div class="lbl">Le party</div>
+<div id="party" class="grid2"></div>
+<div id="monwrap"><div class="lbl">Tes monstres · touche-en un pour sa capacité spéciale</div><div id="mons" class="grid2"></div></div>
+<div class="lbl" id="handlbl"></div>
+<div id="hand" class="grid2"></div>
+<div id="prev" style="margin-top:10px;padding:7px 10px;background:var(--bg-accent);border-radius:var(--radius);font-size:13px;color:var(--text-accent)"></div>
+<div id="err" style="font-size:13px;color:var(--text-danger);min-height:18px;margin-top:4px"></div>
+<div id="btns" class="act"></div>
+<div class="lbl">Ce qui s'est passé</div>
+<div id="log" class="log" style="font-size:13px;color:var(--text-secondary);line-height:1.5"></div>
+<button id="reset" style="width:100%;margin-top:10px">Nouvelle campagne</button>
+</div>
+<script>
+// ===== Tuning (mirrors CLAUDE.md "Rules v0"; move to data/tuning.tres in Godot) =====
+const NIGHTS=3,ENC_PER_NIGHT=3,ROUNDS=8,TIME=18,FLEE_COST=2;
+const CLS={tank:'Tank',heal:'Healer',dps:'DPS',cc:'Crowd control'};
+const ARCH={mh:'Murder Hobo',mc:'Main Character',rl:'Rule Lawyer',sd:'Joueur discret'};
+// b = behaviour key, sp = special key. Both are resolved by small registries below.
+const MONS=[
+{n:'Rats géants',hp:8,atk:3,c:1,b:'rand',sp:'swarm',spn:'Essaim',spq:'attaque deux fois ce tour'},
+{n:'Gobelins',hp:12,atk:4,c:1,b:'weak',sp:'trap',spn:'Piège',spq:'empoisonne sa cible'},
+{n:'Squelettes',hp:16,atk:5,c:2,b:'rand',sp:'rise',spn:'Se relève',spq:'+10 HP'},
+{n:'Mimic',hp:18,atk:7,c:2,b:'hobo',sp:'bite',spn:'Croc',spq:'×2 dégâts ce tour'},
+{n:'Araignée venimeuse',hp:14,atk:4,c:2,b:'rand',poison:1,sp:'web',spn:'Toile',spq:'sa cible perd son prochain tour'},
+{n:'Assassin',hp:14,atk:9,c:3,b:'assassin',sp:'bite',spn:'Coup dans le dos',spq:'×2 dégâts ce tour'},
+{n:'Loup-garou',hp:22,atk:7,c:3,b:'rand',sp:'howl',spn:'Hurlement',spq:'+2 ATK à tous tes monstres'},
+{n:'Ogre',hp:30,atk:10,c:3,b:'strong',sp:'web',spn:'Cri',spq:'sa cible perd son prochain tour'},
+{n:'Chevalier noir',hp:32,atk:11,c:4,b:'strong',nostun:1,sp:'mono',spn:'Monologue',spq:'pas d\'attaque, +8 satisfaction à tous'},
+{n:'Nécromancien',hp:26,atk:12,c:4,b:'weak',sp:'raise',spn:'Relève un mort',spq:'un Squelette arrive'},
+{n:'Hydre',hp:40,atk:9,c:5,b:'multi',sp:'rise',spn:'Régénération',spq:'+10 HP'},
+{n:'Dragon',hp:55,atk:16,c:6,b:'strong',sp:'breath',spn:'Souffle',spq:'touche tout le party pour la moitié'}];
+const DMCARDS=[
+{n:'Fudge',k:'fudge',q:'Ce tour, personne ne meurt. Rule Lawyer −10.'},
+{n:'Renforts',k:'reinf',q:'Un monstre de coût 1-2 arrive.'},
+{n:'Description dramatique',k:'narr',q:'Pas d\'attaque. +6 sat. à tous, Murder Hobo −6.'},
+{n:'Inspiration',k:'insp',q:'Un joueur double son prochain coup. +5 sat.'},
+{n:'Coup critique',k:'crit',q:'Tes monstres font ×1,5 ce tour.'},
+{n:'Le monstre hésite',k:'hesit',q:'Ton plus gros monstre n\'attaque pas ce tour.'}];
+const LOOT=[
+{n:'Épée +1',atk:2,hp:0,s:10,f:'dps'},{n:'Bouclier gravé',atk:0,hp:12,s:10,f:'tank'},{n:'Bâton de soins',atk:1,hp:4,s:10,f:'heal',heal:2},
+{n:'Baguette de givre',atk:1,hp:4,s:10,f:'cc',stun:0.2},{n:'Hache de guerre',atk:4,hp:0,s:14,f:'dps'},{n:'Armure de plates',atk:0,hp:18,s:14,f:'tank'},
+{n:'Potion de force',atk:2,hp:4,s:8,f:null},{n:'Épée vorpale',atk:6,hp:4,s:22,f:'dps',leg:1},{n:'Anneau de vie',atk:0,hp:16,s:22,f:'heal',heal:4,leg:1}];
+
+// ===== State =====
+let S,rng,C;
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const pick=a=>a[Math.floor(rng()*a.length)];
+const alive=()=>S.party.filter(p=>p.alive&&p.hp>0);
+function init(seed){
+seed=seed??Math.floor(Math.random()*999999);rng=mulberry(seed);
+const P=(name,cls,a,hp,atk)=>({name,cls,a,hp,max:hp,atk,sat:50,alive:true,st:null,heal:4,stun:0.5,poison:0,insp:false,skip:false});
+S={seed,night:1,enc:1,phase:'draft',sel:new Set(),offer:[],deck:[],energy:0,time:TIME,log:[],loot:[],lootSel:null,over:false,dm:[],target:null,mode:null,
+party:[P('Max','tank','mc',32,4),P('Kevin','dps','mh',18,8),P('Sophie','cc','rl',20,4),P('Mathieu','heal','sd',20,3)]};
+C=null;startNight();render();
+}
+function addLog(t){S.log.unshift(t);S.log=S.log.slice(0,8)}
+
+// ===== Night / encounter flow =====
+function startNight(){S.phase='draft';S.enc=1;S.time=TIME;S.energy=5+S.night*2;S.sel.clear();
+const pool=MONS.filter(m=>m.c<=S.energy);S.offer=[];while(S.offer.length<7&&S.offer.length<pool.length){const m=pick(pool);if(!S.offer.includes(m))S.offer.push(m)}
+addLog('Soirée '+S.night+'. Tu prépares tes notes. Choisis 5 monstres pour la soirée.')}
+function startEncounter(){S.phase='pick';S.sel.clear();S.dm=[pick(DMCARDS),pick(DMCARDS)];
+S.party.forEach(p=>{p.st=null;p.poison=0;p.insp=false;p.skip=false;if(p.alive)p.hp=Math.min(p.max,p.hp+Math.round(p.max*0.35))});
+const al=alive();if(al.length&&rng()<0.75){const p=pick(al);p.st=pick(['ph','dt','tx']);addLog(p.name+(p.st==='ph'?' scrolle sur son cell.':p.st==='dt'?' a apporté sa dice tower.':' est de mauvaise humeur.'))}}
+function selDeck(){return S.deck.filter(c=>S.sel.has(c.id)&&!c.used)}
+function cost(){return selDeck().reduce((a,c)=>a+c.c,0)}
+function startFight(){
+C={mons:selDeck().map(m=>({...m,cur:m.hp,stunned:false,hesit:false,spUsed:false,spOn:false})),round:0,taken:{},dealt:{},kills:{},healed:{},stuns:{},start:{},fudge:false,crit:false,narr:false,fled:false,usedFudge:false,retreat:false};
+selDeck().forEach(c=>c.used=true);
+S.party.forEach(p=>{C.start[p.name]=p.hp;C.taken[p.name]=0;C.dealt[p.name]=0;C.kills[p.name]=0;C.healed[p.name]=0;C.stuns[p.name]=0});
+S.phase='fight';S.target=null;S.mode=null;addLog('Rencontre '+S.enc+' : '+C.mons.map(m=>m.n).join(', ')+'.')}
+function die(t,how,ml){t.hp=0;t.alive=false;ml.push(t.name+how+' Silence autour de la table.')}
+
+// ===== Round resolution: poison -> players -> monsters =====
+function playerPhase(){const ml=[];C.round++;S.time--;C.mons.forEach(m=>m.stunned=false);
+for(const p of alive()){if(p.poison){p.hp-=3;C.taken[p.name]+=3;if(p.hp<=0)die(p,' succombe au poison.',ml)}}
+for(const p of alive()){if(p.skip){p.skip=false;ml.push(p.name+' perd son tour.');continue}if(p.st==='ph'&&C.round<=2)continue;const live=C.mons.filter(m=>m.cur>0);if(!live.length)break;
+if(p.cls==='heal'){const low=alive().filter(q=>q.hp<q.max*0.4).sort((a,b)=>a.hp/a.max-b.hp/b.max)[0];
+if(low){const h=Math.min(p.heal+Math.floor(rng()*3),low.max-low.hp);low.hp+=h;C.healed[p.name]+=h;ml.push(p.name+' soigne '+low.name+' de '+h+'.');continue}}
+if(p.cls==='cc'){const big=live.filter(m=>!m.nostun).reduce((a,b)=>!a||b.atk>a.atk?b:a,null);if(big&&rng()<p.stun){big.stunned=true;C.stuns[p.name]++;ml.push(p.name+' étourdit '+big.n+'.')}}
+const t=p.a==='mh'?live.reduce((a,b)=>b.cur>a.cur?b:a):live.reduce((a,b)=>b.cur<a.cur?b:a);
+let d=p.atk+Math.floor(rng()*3)-1;if(p.st==='dt'&&rng()<0.25){d*=2;ml.push(p.name+' crit avec sa dice tower.')}
+if(p.insp){d*=2;p.insp=false;ml.push(p.name+' est inspiré. Double dégâts.')}
+t.cur-=d;C.dealt[p.name]+=d;if(t.cur<=0){C.kills[p.name]++;ml.push(p.name+' achève '+t.n+'.')}}
+return ml}
+// Targeting order: DM override -> assassin -> taunt 50% -> Main Character 30% -> behaviour
+function chooseTarget(m,al){const tank=al.find(p=>p.cls==='tank'),mc=al.find(p=>p.a==='mc');
+if(m.b==='assassin')return al.find(p=>p.cls==='heal')||al.reduce((a,b)=>b.hp<a.hp?b:a);
+if(tank&&rng()<0.5)return tank;if(mc&&rng()<0.3)return mc;
+if(m.b==='strong')return al.reduce((a,b)=>b.atk>a.atk?b:a);
+if(m.b==='weak')return al.reduce((a,b)=>b.hp<a.hp?b:a);
+if(m.b==='hobo')return al.find(p=>p.a==='mh')||pick(al);return pick(al)}
+function hit(m,t,d,ml){if(t.hp-d<=0&&C.fudge){d=t.hp-1;C.usedFudge=true;ml.push('Tu fudges le dé. '+t.name+' survit à 1 HP.')}
+t.hp-=d;C.taken[t.name]+=d;if(m.poison&&!t.poison){t.poison=1;ml.push(t.name+' est empoisonné.')}if(t.hp<=0)die(t,' meurt.',ml)}
+function monsterPhase(){const ml=[];
+if(C.narr){ml.push('Tu décris la salle pendant trois minutes. Les monstres attendent.');C.narr=false;return ml}
+for(const m of C.mons.filter(m=>m.cur>0)){const al=alive();if(!al.length)break;let mult=C.crit?1.5:1,times=1;
+if(m.spOn){m.spOn=false;m.spUsed=true;ml.push(m.n+' : '+m.spn+'.');
+if(m.sp==='rise'){m.cur=Math.min(m.hp,m.cur+10)}else if(m.sp==='howl'){C.mons.forEach(x=>x.atk+=2)}else if(m.sp==='mono'){S.party.forEach(p=>{if(p.alive)p.sat=Math.min(100,p.sat+8)});ml.push('Les joueurs écoutent, captivés. Kevin prend des notes.');continue}
+else if(m.sp==='raise'){const s=MONS[2];C.mons.push({...s,cur:s.hp,stunned:false,hesit:false,spUsed:true,spOn:false})}else if(m.sp==='bite')mult*=2;else if(m.sp==='swarm')times=2;
+else if(m.sp==='breath'){for(const t of al){hit(m,t,Math.ceil((m.atk*mult)/2),ml)}continue}
+else if(m.sp==='web'||m.sp==='trap'){const t=S.target&&S.target.hp>0?S.target:chooseTarget(m,al);if(m.sp==='web'){t.skip=true;ml.push(t.name+' est immobilisé.')}else{t.poison=1;ml.push(t.name+' est empoisonné.')}}}
+if(m.stunned||m.hesit){m.hesit=false;continue}
+for(let k=0;k<times;k++){const a2=alive();if(!a2.length)break;
+const targets=m.b==='multi'?a2.slice(0,3):[S.target&&S.target.alive&&S.target.hp>0?S.target:chooseTarget(m,a2)];
+for(const t of targets){let d=m.atk+Math.floor(rng()*3)-1;if(m.b==='multi')d=Math.ceil(d/2);d=Math.ceil(d*mult);hit(m,t,d,ml)}}}
+C.crit=false;C.fudge=false;S.target=null;return ml}
+function endRound(){const ml=[...playerPhase()];
+if(C.mons.some(m=>m.cur>0)&&alive().length)ml.push(...monsterPhase());
+ml.slice(-5).reverse().forEach(addLog);
+if(S.dm.length<3)S.dm.push(pick(DMCARDS));
+if(!alive().length){S.over=true;S.phase='over';addLog('TPK. La campagne est annulée. Quelqu\'un propose de jouer à Catan.');return}
+if(!C.mons.some(m=>m.cur>0)||C.round>=ROUNDS||S.time<=0){if(C.mons.some(m=>m.cur>0))C.fled=true;endFight()}}
+
+// ===== Satisfaction at encounter end =====
+function endFight(){
+const maxTaken=Math.max(...S.party.map(p=>C.taken[p.name])),maxDealt=Math.max(...S.party.map(p=>C.dealt[p.name]));
+if(C.fled)addLog('Le combat s\'étire. Tout le monde est tanné, les monstres partent.');
+S.party.forEach(p=>{if(!p.alive){if(C.start[p.name]>0)p.sat=0;return}
+const thrill=C.taken[p.name]/p.max;let d=0,why='';
+if(thrill<0.15){d=-15;why=' s\'ennuie. « C\'est tout ? »'}else if(thrill<0.6){d=12;why=' a eu un bon combat.'}else{d=25;why=' a frôlé la mort. Meilleure soirée à vie.'}
+if(C.fled)d-=10;if(C.retreat){d-=8;why+=' Les monstres qui fuient, c\'est louche.'}
+if(p.cls==='tank'){if(C.taken[p.name]===maxTaken&&maxTaken>0)d+=6;else{d-=6;why+=' Personne ne l\'a attaqué.'}}
+if(p.cls==='dps'){if(C.dealt[p.name]===maxDealt)d+=6;else{d-=6;why+=' Quelqu\'un a fait plus de dégâts que lui.'}}
+if(p.cls==='heal'){if(C.healed[p.name]>0){d+=8;why+=' Enfin utile.'}else{d-=8;why+=' Il a regardé.'}}
+if(p.cls==='cc'){if(C.stuns[p.name]>0)d+=6;else{d-=6;why+=' Aucun stun n\'a passé.'}}
+if(p.a==='mh'){if(C.kills[p.name])d+=6;else{d-=6;why+=' Pas de kill, Kevin boude.'}}
+if(p.a==='mc'){if(C.taken[p.name]===maxTaken&&maxTaken>0)d+=6;else d-=6}
+if(p.a==='rl'){if(C.usedFudge)d-=10;if(C.mons.length<=2)d+=4}
+if(p.a==='sd'){if(thrill>=0.15&&thrill<0.6)d+=4}
+p.sat=Math.max(0,Math.min(100,p.sat+d));addLog(p.name+why+' ('+(d>=0?'+':'')+d+')')});
+S.party.forEach(p=>{if(p.alive&&p.st==='tx'){const i=S.party.indexOf(p);[i-1,i+1].forEach(j=>{const n=S.party[(j+4)%4];if(n.alive)n.sat=Math.max(0,n.sat-6)});addLog(p.name+' plombe l\'ambiance de ses voisins.')}});
+S.phase='loot';S.lootSel=null;const pool=LOOT.filter(l=>!l.leg||S.night>=2);S.loot=[];while(S.loot.length<3){const l=pick(pool);if(!S.loot.includes(l))S.loot.push(l)}}
+
+// ===== DM cards =====
+function playDm(i){const c=S.dm[i];
+if(c.k==='fudge'){C.fudge=true;addLog('Tu gardes un dé caché derrière le paravent.')}
+else if(c.k==='reinf'){const m=pick(MONS.filter(m=>m.c<=2));C.mons.push({...m,cur:m.hp,stunned:false,hesit:false,spUsed:false,spOn:false});addLog('Renforts : '+m.n+' débarque par la porte du fond.')}
+else if(c.k==='narr'){C.narr=true;S.party.forEach(p=>{if(p.alive)p.sat=Math.max(0,Math.min(100,p.sat+(p.a==='mh'?-6:6)))});addLog('Description dramatique. Kevin regarde son cell.')}
+else if(c.k==='insp'){S.mode='insp';S.dm.splice(i,1);err('Touche le joueur à inspirer.');render();return}
+else if(c.k==='crit'){C.crit=true;addLog('Tu souris. Les dés sont chauds ce tour-ci.')}
+else if(c.k==='hesit'){const live=C.mons.filter(m=>m.cur>0&&!m.hesit);if(live.length){const m=live.reduce((a,b)=>b.atk>a.atk?b:a);m.hesit=true;addLog(m.n+' hésite. Personne ne comprend pourquoi.')}}
+S.dm.splice(i,1);render()}
+
+// ===== Loot / progression =====
+function nextEncounter(){S.enc++;
+if(S.enc>ENC_PER_NIGHT||S.time<=0){if(S.enc<=ENC_PER_NIGHT){S.party.forEach(p=>{if(p.alive)p.sat=Math.max(0,p.sat-8)});addLog('Minuit. Martin travaille demain. La dernière rencontre saute, tout le monde est déçu.')}
+S.night++;if(S.night>NIGHTS){S.over=true;S.phase='over';addLog('Fin de campagne. Score final : '+finalScore().toLocaleString('fr-CA')+'.')}else startNight()}
+else startEncounter()}
+function giveLoot(l,p){const fit=!l.f||l.f===p.cls;const s=fit?l.s:Math.floor(l.s/2);
+p.atk+=l.atk;p.max+=l.hp;p.hp+=l.hp;p.sat=Math.min(100,p.sat+s);if(l.heal&&p.cls==='heal')p.heal+=l.heal;if(l.stun&&p.cls==='cc')p.stun=Math.min(0.9,p.stun+l.stun);
+addLog(p.name+' reçoit '+l.n+'.'+(fit?'':' Il sourit poliment.'));
+S.party.forEach(q=>{if(q!==p&&q.alive)q.sat=Math.max(0,q.sat-4)});nextEncounter()}
+function power(p){return p.atk*2+Math.round(p.max/5)}
+function finalScore(){return S.party.reduce((a,p)=>a+(p.alive?power(p)*p.sat:0),0)}
+
+// ===== Render =====
+function render(){
+document.getElementById('hdr').textContent=S.over?'Campagne terminée':'Soirée '+S.night+'/'+NIGHTS+' · Rencontre '+Math.min(S.enc,ENC_PER_NIGHT)+'/'+ENC_PER_NIGHT+(S.phase==='fight'?' · Tour '+(C.round+1):'');
+document.getElementById('score').textContent='Score '+finalScore().toLocaleString('fr-CA');
+document.getElementById('clock').textContent=S.over?'':S.time+' tours avant minuit · budget par rencontre '+S.energy+' · seed '+S.seed;
+document.getElementById('party').innerHTML=S.party.map((p,i)=>{
+const st=(p.st==='ph'?'<span class="pill ph">Sur son cell</span>':p.st==='dt'?'<span class="pill dt">Dice tower</span>':p.st==='tx'?'<span class="pill tx">Toxique</span>':'')+(p.poison?'<span class="pill px">Poison</span>':'')+(p.insp?'<span class="pill dt">Inspiré</span>':'')+(p.skip?'<span class="pill ph">Immobilisé</span>':'');
+const cl=(p.alive?'':' dead')+(S.phase==='loot'&&S.lootSel!==null&&p.alive?' pick':'')+(S.target===p?' aim':'')+(S.mode==='insp'&&p.alive?' pick':'');
+return '<div class="seat'+cl+'" data-p="'+i+'"><div style="font-size:14px;font-weight:500">'+p.name+(p.alive?'':' †')+(S.target===p?' ◎':'')+'</div><div style="margin:3px 0"><span class="pill '+p.cls+'">'+CLS[p.cls]+'</span>'+st+'</div><div style="font-size:12px;color:var(--text-secondary)">'+ARCH[p.a]+' · ATK '+p.atk+'</div><div style="font-size:12px;margin-top:4px">HP '+p.hp+'/'+p.max+'</div><div class="bar"><div style="width:'+(p.hp/p.max*100)+'%;background:var(--fill-danger)"></div></div><div style="font-size:12px;margin-top:4px">Satisfaction '+p.sat+'</div><div class="bar"><div style="width:'+p.sat+'%;background:var(--fill-success)"></div></div></div>'}).join('');
+const mw=document.getElementById('monwrap');
+if(S.phase==='fight'){mw.style.display='';document.getElementById('mons').innerHTML=C.mons.map((m,i)=>'<div class="mon'+(m.spOn?' ready':'')+'" data-m="'+i+'"'+(m.cur<=0?' style="color:var(--text-muted)"':'')+'><b>'+m.n+'</b>'+(m.stunned?' · étourdi':'')+(m.hesit?' · hésite':'')+'<div>HP '+Math.max(0,m.cur)+'/'+m.hp+' · ATK '+m.atk+'</div><div style="color:'+(m.spUsed?'var(--text-muted)':m.spOn?'var(--text-accent)':'var(--text-secondary)')+'">'+(m.spUsed?'Capacité utilisée':(m.spOn?'Prêt : ':'')+m.spn+' — '+m.spq)+'</div></div>').join('')}else mw.style.display='none';
+const hl=document.getElementById('handlbl'),hand=document.getElementById('hand'),prev=document.getElementById('prev'),btns=document.getElementById('btns');
+if(S.phase==='draft'){hl.textContent='Draft · garde 5 monstres ('+S.sel.size+'/5)';
+hand.innerHTML=S.offer.map((c,i)=>'<div class="card'+(S.sel.has(i)?' sel':'')+'" data-o="'+i+'"><div style="font-size:13px;font-weight:500">'+c.n+' <span style="color:var(--text-secondary);font-weight:400">· '+c.c+'</span></div><div style="font-size:12px;color:var(--text-secondary)">HP '+c.hp+' · ATK '+c.atk+'</div><div style="font-size:12px;color:var(--text-muted)">'+c.spn+' : '+c.spq+'</div></div>').join('');
+prev.textContent='Chaque monstre sert une fois. Trois rencontres à remplir avec un budget de '+S.energy+' chacune.';
+btns.innerHTML='<button id="go" style="grid-column:1/-1;background:var(--fill-accent);color:var(--on-accent);border:none">Commencer la soirée</button>';
+document.getElementById('go').onclick=()=>{if(S.sel.size!==5){err('Choisis exactement 5 monstres.');return}err('');S.deck=[...S.sel].map((i,k)=>({...S.offer[i],id:k,used:false}));startEncounter();render()}}
+else if(S.phase==='pick'){hl.textContent='Ton deck de la soirée · coût '+cost()+'/'+S.energy;
+hand.innerHTML=S.deck.map(c=>'<div class="card'+(c.used?' used':S.sel.has(c.id)?' sel':'')+'" data-c="'+c.id+'"><div style="font-size:13px;font-weight:500">'+c.n+' <span style="color:var(--text-secondary);font-weight:400">· '+c.c+'</span></div><div style="font-size:12px;color:var(--text-secondary)">'+(c.used?'Déjà joué ce soir':'HP '+c.hp+' · ATK '+c.atk)+'</div></div>').join('');
+const left=S.deck.filter(c=>!c.used).length;prev.textContent=left?'Il te reste '+left+' monstres pour '+(ENC_PER_NIGHT-S.enc+1)+' rencontres.':'Plus de monstres. Tu improvises avec les Renforts… ou tu sautes.';
+btns.innerHTML='<button id="go" style="grid-column:1/-1;background:var(--fill-accent);color:var(--on-accent);border:none">Lancer le combat</button>';
+document.getElementById('go').onclick=()=>{if(cost()>S.energy){err('Trop dangereux pour ton budget.');return}if(!selDeck().length){err('Il te faut au moins un monstre.');return}err('');startFight();render()}}
+else if(S.phase==='fight'){hl.textContent='Tes cartes de DM · une par tour';
+hand.innerHTML=S.dm.map((c,i)=>'<div class="card" data-d="'+i+'"><div style="font-size:13px;font-weight:500">'+c.n+'</div><div style="font-size:12px;color:var(--text-secondary)">'+c.q+'</div></div>').join('')||'<div style="font-size:12px;color:var(--text-muted)">Plus de cartes. Tu improvises.</div>';
+prev.textContent=S.mode==='insp'?'Touche le joueur à inspirer.':S.target?'Les monstres visent '+S.target.name+' ce tour.':'Touche un joueur pour que les monstres le visent, ou laisse-les choisir.';
+btns.innerHTML='<button id="next" style="background:var(--fill-accent);color:var(--on-accent);border:none">Résoudre le tour</button><button id="flee">Les monstres fuient (−'+FLEE_COST+' tours)</button>';
+document.getElementById('next').onclick=()=>{if(S.mode==='insp'){err('Choisis d\'abord qui inspirer.');return}err('');endRound();render()};
+document.getElementById('flee').onclick=()=>{err('');C.retreat=true;S.time=Math.max(0,S.time-FLEE_COST);addLog('« Soudainement, les monstres entendent un bruit et s\'enfuient. » Personne n\'y croit.');endFight();render()}}
+else if(S.phase==='loot'){hl.textContent='Le loot · un objet, puis le joueur';
+hand.innerHTML=S.loot.map((l,i)=>'<div class="card'+(S.lootSel===i?' sel':'')+'" data-l="'+i+'"><div style="font-size:13px;font-weight:500">'+l.n+(l.leg?' ★':'')+'</div><div style="margin:3px 0">'+(l.f?'<span class="pill '+l.f+'">'+CLS[l.f]+'</span>':'<span class="pill" style="background:var(--surface-1);color:var(--text-secondary)">Toutes classes</span>')+'</div><div style="font-size:12px;color:var(--text-secondary)">'+(l.atk?'+'+l.atk+' ATK ':'')+(l.hp?'+'+l.hp+' HP ':'')+'· +'+l.s+' sat. (moitié hors classe)</div></div>').join('');
+prev.textContent=S.lootSel===null?'Les autres vont être un peu jaloux.':'Touche le joueur qui reçoit '+S.loot[S.lootSel].n;btns.innerHTML=''}
+else{hl.textContent='';hand.innerHTML='';const al=alive();prev.textContent=al.length?'Score final '+finalScore().toLocaleString('fr-CA')+' · '+al.length+' survivants, satisfaction moyenne '+Math.round(al.reduce((a,p)=>a+p.sat,0)/al.length):'TPK. Score : 0.';btns.innerHTML=''}
+document.getElementById('log').innerHTML=S.log.map(l=>'<div>'+l+'</div>').join('');
+}
+function err(t){document.getElementById('err').textContent=t}
+document.getElementById('hand').addEventListener('click',e=>{err('');
+const o=e.target.closest('[data-o]');if(o&&S.phase==='draft'){const i=+o.dataset.o;if(S.sel.has(i))S.sel.delete(i);else if(S.sel.size<5)S.sel.add(i);else err('Déjà 5. Retire-en un.');render();return}
+const c=e.target.closest('[data-c]');if(c&&S.phase==='pick'){const id=+c.dataset.c;const card=S.deck[id];if(card.used)return;S.sel.has(id)?S.sel.delete(id):S.sel.add(id);render();return}
+const d=e.target.closest('[data-d]');if(d&&S.phase==='fight'&&!S.mode){playDm(+d.dataset.d);return}
+const l=e.target.closest('[data-l]');if(l&&S.phase==='loot'){S.lootSel=+l.dataset.l;render()}});
+document.getElementById('mons').addEventListener('click',e=>{const el=e.target.closest('[data-m]');if(!el||S.phase!=='fight')return;const m=C.mons[+el.dataset.m];
+if(m.cur<=0||m.spUsed){err(m.cur<=0?'Il est mort.':'Capacité déjà utilisée.');return}err('');m.spOn=!m.spOn;render()});
+document.getElementById('party').addEventListener('click',e=>{const el=e.target.closest('[data-p]');if(!el)return;const p=S.party[+el.dataset.p];
+if(S.phase==='fight'){if(!p.alive){err('Il est déjà mort.');return}err('');
+if(S.mode==='insp'){p.insp=true;p.sat=Math.min(100,p.sat+5);S.mode=null;addLog('Inspiration pour '+p.name+'.');render();return}
+S.target=S.target===p?null:p;render();return}
+if(S.phase==='loot'&&S.lootSel!==null){if(!p.alive){err('Le loot ne le consolera pas.');return}err('');giveLoot(S.loot[S.lootSel],p);render()}});
+document.getElementById('reset').addEventListener('click',()=>{err('');init()});
+init();
+</script></body></html>

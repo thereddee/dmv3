@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="PlayerData" format=3]
+
+[ext_resource type="Script" path="res://data/player_data.gd" id="1_d1c03"]
+
+[resource]
+script = ExtResource("1_d1c03")
+display_name = "Max"
+class_key = "tank"
+archetype_key = "main_character"
+hp = 32

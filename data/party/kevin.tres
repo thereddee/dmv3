@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="PlayerData" format=3]
+
+[ext_resource type="Script" path="res://data/player_data.gd" id="1_5t4da"]
+
+[resource]
+script = ExtResource("1_5t4da")
+display_name = "Kevin"
+seat = 1
+class_key = "dps"
+archetype_key = "murder_hobo"
+hp = 18
+atk = 8

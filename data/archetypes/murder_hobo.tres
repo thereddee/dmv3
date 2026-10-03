@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ArchetypeData" format=3]
+
+[ext_resource type="Script" path="res://data/archetype_data.gd" id="1_56584"]
+
+[resource]
+script = ExtResource("1_56584")
+key = "murder_hobo"
+display_name = "Murder Hobo"
+satisfaction_bonus = 6
+satisfaction_malus = 6
+blurb = "Veut un kill par combat. Déteste les descriptions."

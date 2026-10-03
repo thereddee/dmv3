@@ -1,0 +1,32 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/choice_panel.gd" id="1"]
+
+[node name="ChoicePanel" type="VBoxContainer"]
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+script = ExtResource("1")
+
+[node name="Cards" type="HFlowContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+
+[node name="Footer" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="InfoLabel" type="Label" parent="Footer"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
+text = "Info"
+autowrap_mode = 3
+
+[node name="ConfirmButton" type="Button" parent="Footer"]
+custom_minimum_size = Vector2(250, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Confirmer"

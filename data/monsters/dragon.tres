@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3]
+
+[ext_resource type="Script" path="res://data/monster_data.gd" id="1_k0qjw"]
+
+[resource]
+script = ExtResource("1_k0qjw")
+id = "dragon"
+display_name = "Dragon"
+hp = 55
+atk = 16
+cost = 6
+behaviour = "strongest"
+special = "breath"
+special_name = "Souffle"
+special_desc = "touche tout le party pour la moitié"
+special_value = 0.5
+quip = "C'est dans le nom du jeu. Fallait s'y attendre."

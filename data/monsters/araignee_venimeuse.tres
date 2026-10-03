@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3]
+
+[ext_resource type="Script" path="res://data/monster_data.gd" id="1_0qfjf"]
+
+[resource]
+script = ExtResource("1_0qfjf")
+id = "araignee_venimeuse"
+display_name = "Araignée venimeuse"
+hp = 14
+atk = 4
+cost = 2
+special = "web"
+special_name = "Toile"
+special_desc = "sa cible perd son prochain tour"
+flags = Array[String](["poison"])
+quip = "Quelqu'un à la table a vraiment peur des araignées."

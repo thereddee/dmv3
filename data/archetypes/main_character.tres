@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ArchetypeData" format=3]
+
+[ext_resource type="Script" path="res://data/archetype_data.gd" id="1_a0kpl"]
+
+[resource]
+script = ExtResource("1_a0kpl")
+key = "main_character"
+display_name = "Main Character"
+satisfaction_bonus = 6
+satisfaction_malus = 6
+blurb = "Veut être au centre de l'action. Les monstres le remarquent."

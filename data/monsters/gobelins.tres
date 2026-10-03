@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3]
+
+[ext_resource type="Script" path="res://data/monster_data.gd" id="1_4g124"]
+
+[resource]
+script = ExtResource("1_4g124")
+id = "gobelins"
+display_name = "Gobelins"
+hp = 12
+atk = 4
+behaviour = "weakest"
+special = "trap"
+special_name = "Piège"
+special_desc = "empoisonne sa cible"
+quip = "Ils ont un plan. C'est un mauvais plan."

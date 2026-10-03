@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DmCardData" format=3]
+
+[ext_resource type="Script" path="res://data/dm_card_data.gd" id="1_t30mv"]
+
+[resource]
+script = ExtResource("1_t30mv")
+id = "fudge"
+display_name = "Fudge"
+effect = "fudge"
+description = "Ce tour, personne ne meurt. Rule Lawyer −10."

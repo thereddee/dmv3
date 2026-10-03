@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="LootData" format=3]
+
+[ext_resource type="Script" path="res://data/loot_data.gd" id="1_nj4yi"]
+
+[resource]
+script = ExtResource("1_nj4yi")
+id = "epee_vorpale"
+display_name = "Épée vorpale"
+atk = 6
+hp = 4
+satisfaction = 22
+class_key = "dps"
+legendary = true

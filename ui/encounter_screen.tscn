@@ -1,0 +1,258 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://ui/encounter_screen.gd" id="1"]
+[ext_resource type="PackedScene" path="res://ui/choice_panel.tscn" id="2"]
+
+[node name="EncounterScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.105882, 0.101961, 0.0941176, 1)
+
+[node name="Root" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
+
+[node name="Columns" type="HBoxContainer" parent="Root"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Left" type="VBoxContainer" parent="Root/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="TopBar" type="HBoxContainer" parent="Root/Columns/Left"]
+layout_mode = 2
+
+[node name="HeaderLabel" type="Label" parent="Root/Columns/Left/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 16
+text = "Soirée 1/3"
+
+[node name="ClockLabel" type="Label" parent="Root/Columns/Left/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+text = "18 tours avant minuit"
+horizontal_alignment = 1
+
+[node name="ScoreLabel" type="Label" parent="Root/Columns/Left/TopBar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Score 0"
+
+[node name="MenuButton" type="Button" parent="Root/Columns/Left/TopBar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Recommencer"
+
+[node name="PartyTitle" type="Label" parent="Root/Columns/Left"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Le party"
+
+[node name="PartyRow" type="HBoxContainer" parent="Root/Columns/Left"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="MonstersTitle" type="Label" parent="Root/Columns/Left"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Tes monstres"
+
+[node name="MonstersRow" type="HFlowContainer" parent="Root/Columns/Left"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+
+[node name="ChoicePanel" parent="Root/Columns/Left" instance=ExtResource("2")]
+visible = false
+layout_mode = 2
+
+[node name="HintLabel" type="Label" parent="Root/Columns/Left"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Indice"
+
+[node name="ErrorLabel" type="Label" parent="Root/Columns/Left"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = " "
+
+[node name="HandTitle" type="Label" parent="Root/Columns/Left"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Tes cartes de DM"
+
+[node name="Bottom" type="HBoxContainer" parent="Root/Columns/Left"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="HandRow" type="HBoxContainer" parent="Root/Columns/Left/Bottom"]
+custom_minimum_size = Vector2(0, 84)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="Actions" type="VBoxContainer" parent="Root/Columns/Left/Bottom"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ResolveButton" type="Button" parent="Root/Columns/Left/Bottom/Actions"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Résoudre le tour"
+
+[node name="FleeButton" type="Button" parent="Root/Columns/Left/Bottom/Actions"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Les monstres fuient"
+
+[node name="Right" type="PanelContainer" parent="Root/Columns"]
+custom_minimum_size = Vector2(340, 0)
+layout_mode = 2
+
+[node name="FeedMargin" type="MarginContainer" parent="Root/Columns/Right"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="FeedBox" type="VBoxContainer" parent="Root/Columns/Right/FeedMargin"]
+layout_mode = 2
+
+[node name="FeedTitle" type="Label" parent="Root/Columns/Right/FeedMargin/FeedBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Ce qui s'est passé"
+
+[node name="Scroll" type="ScrollContainer" parent="Root/Columns/Right/FeedMargin/FeedBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Feed" type="VBoxContainer" parent="Root/Columns/Right/FeedMargin/FeedBox/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="Overlay" type="ColorRect" parent="."]
+visible = false
+z_index = 100
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="Center" type="CenterContainer" parent="Overlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SummaryPanel" type="PanelContainer" parent="Overlay/Center"]
+custom_minimum_size = Vector2(640, 0)
+layout_mode = 2
+
+[node name="SummaryMargin" type="MarginContainer" parent="Overlay/Center/SummaryPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 16
+
+[node name="SummaryBox" type="VBoxContainer" parent="Overlay/Center/SummaryPanel/SummaryMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="SummaryTitle" type="Label" parent="Overlay/Center/SummaryPanel/SummaryMargin/SummaryBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Fin de la rencontre"
+
+[node name="SummaryBody" type="Label" parent="Overlay/Center/SummaryPanel/SummaryMargin/SummaryBox"]
+custom_minimum_size = Vector2(590, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "..."
+autowrap_mode = 3
+
+[node name="RecapScroll" type="ScrollContainer" parent="Overlay/Center/SummaryPanel/SummaryMargin/SummaryBox"]
+custom_minimum_size = Vector2(0, 250)
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="RecapLabel" type="Label" parent="Overlay/Center/SummaryPanel/SummaryMargin/SummaryBox/RecapScroll"]
+custom_minimum_size = Vector2(560, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+text = "Récap"
+autowrap_mode = 3
+
+[node name="SeedRow" type="HBoxContainer" parent="Overlay/Center/SummaryPanel/SummaryMargin/SummaryBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SeedLabel" type="Label" parent="Overlay/Center/SummaryPanel/SummaryMargin/SummaryBox/SeedRow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Seed"
+
+[node name="SeedEdit" type="LineEdit" parent="Overlay/Center/SummaryPanel/SummaryMargin/SummaryBox/SeedRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
+placeholder_text = "vide = au hasard"
+max_length = 24
+
+[node name="ContinueButton" type="Button" parent="Overlay/Center/SummaryPanel/SummaryMargin/SummaryBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Rencontre suivante"
+
+[node name="ReplayButton" type="Button" parent="Overlay/Center/SummaryPanel/SummaryMargin/SummaryBox"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Rejouer la seed"
+
+[node name="CancelButton" type="Button" parent="Overlay/Center/SummaryPanel/SummaryMargin/SummaryBox"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Annuler"

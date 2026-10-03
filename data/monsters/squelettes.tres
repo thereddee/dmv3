@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3]
+
+[ext_resource type="Script" path="res://data/monster_data.gd" id="1_xv3ra"]
+
+[resource]
+script = ExtResource("1_xv3ra")
+id = "squelettes"
+display_name = "Squelettes"
+hp = 16
+atk = 5
+cost = 2
+special = "regen"
+special_name = "Se relève"
+special_desc = "+10 HP"
+special_value = 10.0
+quip = "Le DM a retrouvé ses vieilles figurines."

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3]
+
+[ext_resource type="Script" path="res://data/monster_data.gd" id="1_qat5h"]
+
+[resource]
+script = ExtResource("1_qat5h")
+id = "necromancien"
+display_name = "Nécromancien"
+hp = 26
+atk = 12
+cost = 4
+behaviour = "weakest"
+special = "raise"
+special_name = "Relève un mort"
+special_desc = "un Squelette arrive"
+special_summon = "squelettes"
+quip = "Recycler, c'est important."

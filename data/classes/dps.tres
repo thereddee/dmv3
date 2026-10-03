@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ClassData" format=3]
+
+[ext_resource type="Script" path="res://data/class_data.gd" id="1_hkb6b"]
+
+[resource]
+script = ExtResource("1_hkb6b")
+key = "dps"
+display_name = "DPS"
+satisfaction_bonus = 6
+satisfaction_malus = 6
+blurb = "Frappe fort, encaisse mal. Veut le plus gros chiffre."
+hp = 18
+atk = 8

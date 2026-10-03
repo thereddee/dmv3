@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DmCardData" format=3]
+
+[ext_resource type="Script" path="res://data/dm_card_data.gd" id="1_ahccg"]
+
+[resource]
+script = ExtResource("1_ahccg")
+id = "le_monstre_hesite"
+display_name = "Le monstre hésite"
+effect = "hesitate"
+description = "Ton plus gros monstre n'attaque pas ce tour."

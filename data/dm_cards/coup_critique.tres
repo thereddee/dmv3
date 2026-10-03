@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DmCardData" format=3]
+
+[ext_resource type="Script" path="res://data/dm_card_data.gd" id="1_06a1q"]
+
+[resource]
+script = ExtResource("1_06a1q")
+id = "coup_critique"
+display_name = "Coup critique"
+effect = "crit"
+description = "Tes monstres font ×1,5 ce tour."

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ClassData" format=3]
+
+[ext_resource type="Script" path="res://data/class_data.gd" id="1_jk6by"]
+
+[resource]
+script = ExtResource("1_jk6by")
+key = "tank"
+display_name = "Tank"
+satisfaction_bonus = 6
+satisfaction_malus = 6
+blurb = "Attire les coups. Veut en prendre plus que les autres."
+hp = 32
+atk = 4

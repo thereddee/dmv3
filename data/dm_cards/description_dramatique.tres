@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DmCardData" format=3]
+
+[ext_resource type="Script" path="res://data/dm_card_data.gd" id="1_dtqqr"]
+
+[resource]
+script = ExtResource("1_dtqqr")
+id = "description_dramatique"
+display_name = "Description dramatique"
+effect = "narration"
+description = "Pas d'attaque. +6 sat. à tous, Murder Hobo −6."

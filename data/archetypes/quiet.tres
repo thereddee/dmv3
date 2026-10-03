@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ArchetypeData" format=3]
+
+[ext_resource type="Script" path="res://data/archetype_data.gd" id="1_sij00"]
+
+[resource]
+script = ExtResource("1_sij00")
+key = "quiet"
+display_name = "Joueur discret"
+satisfaction_bonus = 4
+blurb = "Content d'un bon combat, sans plus. Ne demande rien."

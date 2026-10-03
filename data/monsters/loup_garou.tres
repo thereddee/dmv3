@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3]
+
+[ext_resource type="Script" path="res://data/monster_data.gd" id="1_8g4bk"]
+
+[resource]
+script = ExtResource("1_8g4bk")
+id = "loup_garou"
+display_name = "Loup-garou"
+hp = 22
+atk = 7
+cost = 3
+special = "howl"
+special_name = "Hurlement"
+special_desc = "+2 ATK à tous tes monstres"
+special_value = 2.0
+quip = "Pleine lune, évidemment."

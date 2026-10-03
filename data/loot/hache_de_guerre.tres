@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="LootData" format=3]
+
+[ext_resource type="Script" path="res://data/loot_data.gd" id="1_7jgkd"]
+
+[resource]
+script = ExtResource("1_7jgkd")
+id = "hache_de_guerre"
+display_name = "Hache de guerre"
+atk = 4
+satisfaction = 14
+class_key = "dps"

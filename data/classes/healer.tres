@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ClassData" format=3]
+
+[ext_resource type="Script" path="res://data/class_data.gd" id="1_djkuy"]
+
+[resource]
+script = ExtResource("1_djkuy")
+key = "healer"
+display_name = "Healer"
+satisfaction_bonus = 8
+satisfaction_malus = 8
+blurb = "Soigne l'allié le plus mal en point. Veut être utile."
+hp = 20
+atk = 3

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="LootData" format=3]
+
+[ext_resource type="Script" path="res://data/loot_data.gd" id="1_yd4d5"]
+
+[resource]
+script = ExtResource("1_yd4d5")
+id = "epee_plus_1"
+display_name = "Épée +1"
+atk = 2
+satisfaction = 10
+class_key = "dps"
