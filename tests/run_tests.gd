@@ -26,6 +26,7 @@ func _init() -> void:
 	_test_player_appearance()
 	_test_pose()
 	_test_pixel_palette()
+	_test_mood_follows_satisfaction()
 	print("tests: %s" % ("ALL PASSED" if _failed == 0 else "%d FAILED" % _failed))
 	quit(1 if _failed > 0 else 0)
 
@@ -97,6 +98,13 @@ func _test_pixel_palette() -> void:
 	_check(palette[0].x > 0.7 and palette[0].z < 0.3, "pixel palette: most frequent colour comes first")
 	_check(PixelTable.build_palette(img, 1).size() == PixelTable.MIN_COLORS or PixelTable.build_palette(img, 1).size() == 2,
 			"pixel palette: count is clamped to the minimum")
+
+func _test_mood_follows_satisfaction() -> void:
+	var t := _content.tuning
+	_check(t.mood_for(100) == PlayerAppearance.MOOD_CONTENT, "mood: happy table, happy face")
+	_check(t.mood_for(t.mood_focused_min) == PlayerAppearance.MOOD_FOCUSED, "mood: starting satisfaction reads focused")
+	_check(t.mood_for(t.mood_bored_min) == PlayerAppearance.MOOD_BORED, "mood: low satisfaction reads bored")
+	_check(t.mood_for(0) == PlayerAppearance.MOOD_ANGRY, "mood: zero satisfaction reads angry")
 
 func _check(cond: bool, what: String) -> void:
 	if not cond:

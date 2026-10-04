@@ -71,6 +71,14 @@ extends Resource
 @export var timeout_penalty: int = 10
 @export var rule_lawyer_max_monsters: int = 2
 
+@export_group("Table look")
+## Satisfaction from which a seat's face reads happy / focused / bored; below the last it is angry.
+@export var mood_content_min: int = 70
+@export var mood_focused_min: int = 45
+@export var mood_bored_min: int = 25
+## How long a seat looks surprised after taking damage.
+@export var surprise_seconds: float = 1.2
+
 @export_group("Loot")
 @export var loot_offer: int = 3
 @export var off_class_factor: float = 0.5
@@ -80,3 +88,13 @@ extends Resource
 @export_group("Score")
 @export var power_atk_weight: int = 2
 @export var power_hp_divisor: float = 5.0
+
+## Face of a seat at this satisfaction (PlayerAppearance mood id).
+func mood_for(satisfaction: int) -> String:
+	if satisfaction >= mood_content_min:
+		return PlayerAppearance.MOOD_CONTENT
+	if satisfaction >= mood_focused_min:
+		return PlayerAppearance.MOOD_FOCUSED
+	if satisfaction >= mood_bored_min:
+		return PlayerAppearance.MOOD_BORED
+	return PlayerAppearance.MOOD_ANGRY

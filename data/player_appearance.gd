@@ -41,6 +41,13 @@ const GLASSES: Array[String] = ["aucune", "rondes", "carrees"]
 const MOODS: Array[String] = ["content", "concentre", "blase", "fache", "surpris"]
 const PROPS: Array[String] = ["des", "pile", "cell", "tour", "canette", "chips", "fiche"]
 
+const MOOD_CONTENT := "content"
+const MOOD_FOCUSED := "concentre"
+const MOOD_BORED := "blase"
+const MOOD_ANGRY := "fache"
+const MOOD_SURPRISED := "surpris"
+const PROP_PHONE := "cell"
+
 @export var race: String = "humain"
 ## Class id; named cls because `class` is a GDScript keyword.
 @export var cls: String = "aucune"

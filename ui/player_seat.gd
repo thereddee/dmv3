@@ -14,6 +14,7 @@ var _shown_hp := 0
 var _shown_sat := 0
 var _class_name := ""
 var _archetype_name := ""
+var _tuning: Tuning
 
 @onready var _name_label: Label = $Margin/Row/VBox/Header/NameLabel
 @onready var _target_label: Label = $Margin/Row/VBox/Header/TargetLabel
@@ -37,6 +38,7 @@ func _ready() -> void:
 
 func setup(p: PlayerState, content: ContentDB) -> void:
 	player = p
+	_tuning = content.tuning
 	_class_name = content.classes[p.class_key].display_name
 	_archetype_name = content.archetypes[p.archetype_key].display_name
 	_sat_bar.max_value = content.tuning.max_satisfaction
@@ -61,12 +63,14 @@ func refresh(targeted: bool, pickable: bool) -> void:
 	_target_label.visible = targeted
 	_class_label.text = Strings.UI_SEAT_LINE % [_class_name, player.atk, _archetype_name]
 	_portrait.set_dead(not player.alive)
+	_update_look()
 	_draw_state(targeted, pickable)
 
 
 func show_damage(amount: int, color: Color = Palette.DANGER) -> void:
 	_set_hp(_shown_hp - amount)
 	Fx.pop(self, "-%d" % amount, color, 26)
+	_portrait.flash_surprise(_tuning.surprise_seconds)
 	Fx.flash(self, Palette.FLASH_HIT)
 
 
@@ -80,6 +84,7 @@ func show_satisfaction(delta: int) -> void:
 	_shown_sat = clampi(_shown_sat + delta, 0, int(_sat_bar.max_value))
 	_sat_label.text = Strings.UI_SAT % _shown_sat
 	create_tween().tween_property(_sat_bar, "value", _shown_sat, BAR_TIME)
+	_update_look()
 	Fx.pop(self, "%+d ☺" % delta, Palette.SUCCESS if delta > 0 else Palette.GOLD, 18, 0.85)
 
 
@@ -96,6 +101,11 @@ func show_note(text: String, color: Color = Palette.GOLD) -> void:
 
 func show_acting() -> void:
 	Fx.bump(self)
+
+
+## Face follows the satisfaction shown, and the cell phone follows the 📱 status.
+func _update_look() -> void:
+	_portrait.set_state(_tuning.mood_for(_shown_sat), player.status == Keys.STATUS_PHONE)
 
 
 func _set_hp(value: int) -> void:

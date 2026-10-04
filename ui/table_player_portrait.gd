@@ -11,6 +11,12 @@ const PLAYER_SCENE := preload("res://ui/table_player/table_player.tscn")
 
 var _figure: Node2D
 var _player: TablePlayer
+var _base: PlayerAppearance
+var _display_scale := 1.0
+var _mood := ""
+var _surprise_until := 0.0
+var _phone := false
+var _built_key := ""
 
 
 func _init() -> void:
@@ -27,11 +33,13 @@ func setup(look: PlayerAppearance, seat: int, display_scale: float) -> void:
 	visible = look != null
 	if look == null:
 		return
+	_base = look
+	_mood = look.mood
 	custom_minimum_size = VIEW.size * display_scale
 	_figure.scale = Vector2.ONE * display_scale
 	_figure.position = -VIEW.position * display_scale
 	_player.seat = seat
-	_player.apply(look)
+	_rebuild()
 	var table := TableBackdrop.new()
 	table.part = TableBackdrop.Part.EDGE
 	table.width = VIEW.size.x
@@ -43,3 +51,37 @@ func setup(look: PlayerAppearance, seat: int, display_scale: float) -> void:
 func set_dead(dead: bool) -> void:
 	_figure.modulate = DEAD_TINT if dead else Color.WHITE
 	_player.animate = not dead
+
+## The seat's current face and prop: `mood` is a PlayerAppearance mood id, `phone` swaps the
+## prop for the cell phone. Redraws only when something changed.
+func set_state(mood: String, phone: bool) -> void:
+	if _base == null:
+		return
+	_mood = mood
+	_phone = phone
+	_rebuild()
+
+
+## Looks surprised for `seconds`, then goes back to the seat's own face.
+func flash_surprise(seconds: float) -> void:
+	if _base == null:
+		return
+	_surprise_until = Time.get_ticks_msec() / 1000.0 + seconds
+	_rebuild()
+	await get_tree().create_timer(seconds).timeout
+	if Time.get_ticks_msec() / 1000.0 >= _surprise_until:
+		_rebuild()
+
+
+func _rebuild() -> void:
+	var surprised := Time.get_ticks_msec() / 1000.0 < _surprise_until
+	var mood := PlayerAppearance.MOOD_SURPRISED if surprised else _mood
+	var key := "%s|%s" % [mood, _phone]
+	if key == _built_key:
+		return
+	_built_key = key
+	var look := _base.duplicate() as PlayerAppearance
+	look.mood = mood
+	if _phone:
+		look.prop = PlayerAppearance.PROP_PHONE
+	_player.apply(look)
