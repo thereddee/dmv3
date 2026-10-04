@@ -22,9 +22,81 @@ func _init() -> void:
 	_test_bored_players_pull_out_their_phone()
 	_test_loot_off_class()
 	_test_score_formula()
+	_test_svg_path()
+	_test_player_appearance()
+	_test_pose()
+	_test_pixel_palette()
 	print("tests: %s" % ("ALL PASSED" if _failed == 0 else "%d FAILED" % _failed))
 	quit(1 if _failed > 0 else 0)
 
+
+func _test_svg_path() -> void:
+	var subs := SvgPath.parse("M0,0 L10,0 L10,10Z M20,20 L30,20")
+	_check(subs.size() == 2, "svg path: two subpaths")
+	_check(subs[0].closed and not subs[1].closed, "svg path: only Z closes")
+	_check(subs[0].pts.size() == 3, "svg path: M + 2 L = 3 points")
+	var curve := SvgPath.parse("M0,0 Q5,10 10,0")
+	_check(curve[0].pts.size() == 1 + SvgPath.CURVE_STEPS, "svg path: a curve is flattened")
+	_check(curve[0].pts[-1].is_equal_approx(Vector2(10, 0)), "svg path: curve ends on its last point")
+	_check(SvgPath.parse("M-4.5,.5 L1e-05,3")[0].pts[0] == Vector2(-4.5, 0.5), "svg path: negatives and bare decimals")
+
+
+func _test_player_appearance() -> void:
+	var a := PlayerAppearance.new()
+	var b := PlayerAppearance.new()
+	var rng_a := RandomNumberGenerator.new()
+	var rng_b := RandomNumberGenerator.new()
+	rng_a.seed = 77
+	rng_b.seed = 77
+	a.randomize_with(rng_a)
+	b.randomize_with(rng_b)
+	_check(a.race == b.race and a.cls == b.cls and a.skin == b.skin and a.prop == b.prop, "appearance: same seed, same look")
+	_check(a.skin in PlayerAppearance.skins_for(a.race), "appearance: skin comes from the race palette")
+	_check(a.cls != "aucune", "appearance: generated players always have a class")
+	# every combination of race, class and prop must build without errors
+	var back := Node2D.new()
+	var front := Node2D.new()
+	var look := PlayerAppearance.new()
+	for race in PlayerAppearance.RACES:
+		look.race = race
+		for cls in PlayerAppearance.CLASSES:
+			look.cls = cls
+			for prop in PlayerAppearance.PROPS:
+				look.prop = prop
+				TablePlayerBuilder.new().build(look, back, front)
+	_check(back.get_child_count() > 0 and front.get_child_count() > 0, "appearance: builds layers")
+	back.free()
+	front.free()
+
+func _test_pose() -> void:
+	var look := PlayerAppearance.new()
+	look.prop = "pile"
+	var geo := TablePlayerBuilder.geo_of(look)
+	var first := TablePlayerPose.pose_at(2, look, 3.7, geo)
+	_check(first == TablePlayerPose.pose_at(2, look, 3.7, geo), "pose: pure function of seat, look and time")
+	_check(first["breath"]["ty"] >= 0.0 and first["breath"]["ty"] <= 1.8, "pose: breathing stays within 1.8 units")
+	var dice_seen := {}
+	for i in 840:
+		var pose := TablePlayerPose.pose_at(0, look, i * 0.01, geo)
+		dice_seen[pose["die5"]["op"]] = true
+	_check(dice_seen.size() == 2, "pose: the last die is placed and later knocked away")
+	var phone := PlayerAppearance.new()
+	phone.prop = "cell"
+	_check(TablePlayerPose.pose_at(0, phone, 1.0, geo).has("thumb"), "pose: a cell phone gets a scrolling thumb")
+	var shifted := TablePlayerPose.pose_at(1, look, 1.0, geo)
+	_check(shifted["breath"] != TablePlayerPose.pose_at(0, look, 1.0, geo)["breath"], "pose: seats are out of phase")
+
+func _test_pixel_palette() -> void:
+	var img := Image.create(8, 8, false, Image.FORMAT_RGBA8)
+	img.fill(Color8(200, 40, 40))
+	for x in 3:
+		img.set_pixel(x, 0, Color8(40, 40, 200))
+	img.set_pixel(7, 7, Color8(202, 42, 42))  # near-duplicate of the main colour
+	var palette := PixelTable.build_palette(img, 48)
+	_check(palette.size() == 2, "pixel palette: near-duplicates merge, got %d colours" % palette.size())
+	_check(palette[0].x > 0.7 and palette[0].z < 0.3, "pixel palette: most frequent colour comes first")
+	_check(PixelTable.build_palette(img, 1).size() == PixelTable.MIN_COLORS or PixelTable.build_palette(img, 1).size() == 2,
+			"pixel palette: count is clamped to the minimum")
 
 func _check(cond: bool, what: String) -> void:
 	if not cond:

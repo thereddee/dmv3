@@ -1,0 +1,708 @@
+<title>Table des joueurs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: scène de table pleine largeur à gauche, panneau de customisation à droite (empilé sur mobile) */
+:root{
+  --bg:#eceef3; --surface:#ffffff; --ink:#1d2030; --muted:#5b6176; --line:#d5d9e3;
+  --chip:#f1f2f7; --accent:#5a44c8; --accent-ink:#ffffff;
+  --display:"Chakra Petch", "Trebuchet MS", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#13151d; --surface:#1c1f2c; --ink:#e7e8f0; --muted:#9ba1b6; --line:#2c3043;
+  --chip:#242838; --accent:#a291ff; --accent-ink:#13151d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#13151d; --surface:#1c1f2c; --ink:#e7e8f0; --muted:#9ba1b6; --line:#2c3043;
+  --chip:#242838; --accent:#a291ff; --accent-ink:#13151d; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);padding-inline:16px;padding-block:20px 40px}
+.wrap{max-width:1280px;margin:0 auto;display:grid;gap:20px}
+header{display:grid;gap:4px}
+.eyebrow{font:600 12px var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+h1{font:700 clamp(26px,4vw,36px)/1.1 var(--display);margin:0;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:65ch}
+main{display:grid;gap:20px;grid-template-columns:minmax(0,1fr) 360px;align-items:start}
+@media (max-width:900px){main{grid-template-columns:minmax(0,1fr)}}
+.stage-col{display:grid;gap:12px;min-width:0}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.seg{display:flex;flex-wrap:wrap;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:4px}
+.seg button,.chips button,.btn,.count button{font:600 13px var(--body);color:var(--ink);background:transparent;border:0;border-radius:7px;padding:7px 11px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.seg button:hover:not([aria-pressed="true"]){background:var(--chip)}
+.count{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:13px}
+.count button{background:var(--surface);border:1px solid var(--line);width:32px;height:32px;padding:0;font-size:16px}
+.count output{font:700 15px var(--display);color:var(--ink);min-width:1ch;text-align:center;font-variant-numeric:tabular-nums}
+#stage{border-radius:12px;overflow:hidden;cursor:pointer;line-height:0;background:#2e3248}
+#stage svg,#stage canvas{width:100%;height:auto;display:block}
+#stage canvas{image-rendering:pixelated}
+.seats{display:flex;gap:6px}
+.seats button{flex:1;min-width:0;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:8px 10px;cursor:pointer;color:var(--ink);font:inherit}
+.seats button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.seats b{display:block;font:700 14px var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seats span{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.note{font-size:13px;color:var(--muted);margin:0}
+aside{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:14px}
+.who{display:grid;gap:8px}
+.who label{font:600 12px var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.who input{font:700 18px var(--display);color:var(--ink);background:var(--chip);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;box-sizing:border-box}
+.actions{display:flex;flex-wrap:wrap;gap:6px}
+.btn{background:var(--chip);border:1px solid var(--line)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn:hover{filter:brightness(1.06)}
+fieldset{border:0;margin:0;padding:0;display:grid;gap:6px}
+legend{font:600 12px var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0;margin-bottom:6px}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chips button{background:var(--chip);border:1px solid transparent;padding:5px 9px;font-weight:600;font-size:12.5px}
+.chips button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:transparent}
+.sw button{width:28px;height:28px;padding:0;border-radius:50%;border:2px solid var(--line)}
+.sw button[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--surface) inset;background-clip:padding-box}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.toast{font-size:12.5px;color:var(--accent);min-height:1.2em}
+.pxs{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.pxs input{width:100px;accent-color:var(--accent)}
+.pxs output{font:700 13px var(--display);color:var(--ink);min-width:2ch;font-variant-numeric:tabular-nums}
+.pxs select{font:600 13px var(--body);color:var(--ink);background:var(--chip);border:1px solid var(--line);border-radius:7px;padding:5px 6px}
+.pixrow{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Derrière le paravent · labo de persos</div>
+    <h1>Table des joueurs</h1>
+    <p>Clique sur un joueur (dans la scène ou en dessous) pour le customiser. Le style s'applique à toute la table, pour comparer les rendus côte à côte.</p>
+  </header>
+  <main>
+    <div class="stage-col">
+      <div class="bar">
+        <div class="seg" id="styles" role="group" aria-label="Style de rendu"></div>
+        <button class="btn" id="animBtn" aria-pressed="true">Animations : on</button>
+        <div class="count">Joueurs <button id="minus" aria-label="Retirer un joueur">−</button><output id="n">4</output><button id="plus" aria-label="Ajouter un joueur">+</button></div>
+      </div>
+      <div class="pixrow" id="pixRow" hidden>
+        <label class="pxs" for="pxs">Taille du pixel <input type="range" id="pxs" min="2" max="6" step="1" value="3"><output id="pxsV">3</output></label>
+        <label class="pxs" for="dith">Tramage <input type="range" id="dith" min="0" max="100" step="5" value="35"><output id="dithV">35</output></label>
+        <label class="pxs" for="dtype">Motif <select id="dtype"><option value="bayer4">Bayer 4×4</option><option value="bayer2">Bayer 2×2</option><option value="lignes">Lignes</option><option value="bruit">Bruit</option></select></label>
+        <label class="pxs" for="ncol">Couleurs <input type="range" id="ncol" min="8" max="64" step="4" value="48"><output id="ncolV">48</output></label>
+      </div>
+      <div id="stage" aria-label="Scène de la table"></div>
+      <div class="seats" id="seats"></div>
+      <p class="note">Chaque perso est bâti en couches dans cet ordre : accessoires dorsaux (carquois, capuchon), cheveux arrière, corps et haut, costume de classe, cornes ou queue, tête (oreilles et nez selon la race), pilosité, visage, cheveux avant, lunettes, chapeau, puis mains et objet sur la table. Les races plus petites s'enfoncent derrière la table.</p>
+    </div>
+    <aside id="panel"></aside>
+  </main>
+</div>
+
+<script>
+const PAPER='#f3efe6';
+const SKINS=['#f6d9c6','#ecc1a0','#d49b74','#b5764d','#8a5434','#5b3623'];
+const HAIRC=['#1f1a17','#4a2f1e','#8b5a2b','#d1aa62','#b5452f','#d8d3cb','#5a4bd1','#2e8b7a'];
+const TOPC=['#34466d','#7d2f3c','#2f6b4f','#c98a2b','#45454d','#e6e0d3','#6a3d8f','#2f7fa8'];
+const ACCC=['#c23b3b','#e0a53a','#2f8f6e','#3a6fc4','#7a4fc2','#2b2b33','#e86fa0','#f0ece2'];
+const RACE_SKINS={
+ orc:['#8fae6b','#6f9455','#a3b88a','#5e7a4a','#7d8f6a','#4f6a3e'],
+ tieffelin:['#c4544a','#9b3b52','#7a4a9e','#d07a5e','#5b5fa8','#b8b2c8'],
+ drakeide:['#b33a2e','#2f6fa8','#2f8a52','#c9a13a','#a8a8b4','#3a3440']
+};
+const EYEC=['#5a3a22','#2f5d8a','#3f7a3f','#8a6a2a','#55555f','#8a2f5a','#2a8a8a','#b03a2e'];
+const skinsFor=r=>RACE_SKINS[r]||SKINS;
+const OPTS={
+ race:[['humain','Humain'],['elfe','Elfe'],['nain','Nain'],['halfelin','Halfelin'],['gnome','Gnome'],['orc','Demi-orc'],['tieffelin','Tieffelin'],['drakeide','Drakéide']],
+ cls:[['aucune','Aucune (IRL)'],['guerrier','Guerrier · tank'],['clerc','Clerc · soigneur'],['roublard','Roublard · DPS'],['rodeur','Rôdeur · DPS'],['magicien','Magicien · contrôle'],['barde','Barde · contrôle']],
+ build:[['mince','Mince'],['moyen','Moyen'],['large','Large']],
+ hair:[['court','Court'],['long','Long'],['chignon','Chignon'],['queue','Queue'],['boucles','Bouclé'],['rase','Rasé'],['crete','Crête'],['chauve','Chauve']],
+ facial:[['aucune','Aucune'],['trois','3 jours'],['moustache','Moustache'],['barbe','Barbe'],['tresse','Barbe tressée'],['fourche','Deux tresses'],['longue','Grande barbe à perles']],
+ top:[['hoodie','Hoodie'],['tshirt','T-shirt d20'],['carreaux','Chemise carreaux'],['cardigan','Cardigan'],['cape','Cape cosplay']],
+ head:[['aucun','Rien'],['casquette','Casquette'],['tuque','Tuque'],['sorcier','Chapeau de mage'],['ecouteurs','Écouteurs']],
+ glasses:[['aucune','Aucune'],['rondes','Rondes'],['carrees','Carrées']],
+ mood:[['content','Content'],['concentre','Concentré'],['blase','Blasé'],['fache','Fâché'],['surpris','Surpris']],
+ prop:[['des','Dés'],['pile','Pile de dés'],['cell','Cellulaire'],['tour','Tour à dés'],['canette','Canette'],['chips','Chips'],['fiche','Fiche de perso']]
+};
+const GROUPS=[['Race','race'],['Classe','cls'],['Silhouette','build'],['Peau','skin',SKINS],['Cheveux','hair'],['Couleur des cheveux','hairColor',HAIRC],['Yeux','eyes',EYEC],['Pilosité','facial'],['Haut','top'],['Couleur du haut','topColor',TOPC],['Sur la tête','head'],['Lunettes','glasses'],['Couleur des accessoires','acc',ACCC],['Humeur','mood'],['Sur la table','prop']];
+const STYLES={
+ cel:{label:'BD cel-shading',sw:3.2,stroke:'#17151c'},
+ chibi:{label:'Chibi',sw:3,stroke:'#17151c',chibi:true},
+ flat:{label:'Flat',sw:0},
+ croquis:{label:'Croquis',sw:1.5,stroke:'#3b3833',sketch:true},
+ pixel:{label:'Pixel',sw:4.6,stroke:'#141218',pixel:true}
+};
+const NAMES=['Steve','Mélanie','Kevin','Jo','Gab'];
+const lab=(k,v)=>(OPTS[k].find(o=>o[0]===v)||['',''])[1];
+
+function hx(c){c=c.replace('#','');return [0,2,4].map(i=>parseInt(c.substr(i,2),16))}
+function mix(a,b,t){const A=hx(a),B=hx(b);return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('')}
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+
+function randomPlayer(name){
+  const hair=pick(['court','court','long','long','chignon','queue','boucles','rase','crete','chauve']);
+  const race=pick(['humain','humain','elfe','nain','halfelin','gnome','orc','tieffelin','drakeide']);
+  return {name,race,cls:pick(OPTS.cls.slice(1))[0],eyes:pick(EYEC),build:pick(['mince','moyen','moyen','large']),skin:pick(skinsFor(race)),hair,hairColor:pick(HAIRC.slice(0,6).concat(pick(HAIRC))),
+    facial:race==='nain'?pick(['barbe','tresse','fourche','longue']):pick(['aucune','aucune','aucune','trois','moustache','barbe']),top:pick(OPTS.top)[0],topColor:pick(TOPC),
+    head:pick(['aucun','aucun','casquette','tuque','sorcier','ecouteurs']),glasses:pick(['aucune','aucune','rondes','carrees']),
+    acc:pick(ACCC),mood:pick(OPTS.mood)[0],prop:pick(OPTS.prop)[0]};
+}
+
+let state;
+try{state=JSON.parse(localStorage.getItem('tableJoueurs.v1'))}catch(e){}
+if(!state||!Array.isArray(state.players)){
+  state={style:'cel',n:4,sel:0,players:[
+    {name:'Steve',build:'large',skin:SKINS[1],hair:'court',hairColor:HAIRC[1],facial:'barbe',top:'carreaux',topColor:TOPC[1],head:'tuque',glasses:'aucune',acc:ACCC[0],mood:'content',prop:'chips'},
+    {name:'Mélanie',build:'mince',skin:SKINS[3],hair:'long',hairColor:HAIRC[0],facial:'aucune',top:'cape',topColor:TOPC[6],head:'sorcier',glasses:'rondes',acc:ACCC[6],mood:'surpris',prop:'fiche'},
+    {name:'Kevin',build:'moyen',skin:SKINS[0],hair:'crete',hairColor:HAIRC[4],facial:'trois',top:'hoodie',topColor:TOPC[4],head:'ecouteurs',glasses:'aucune',acc:ACCC[3],mood:'blase',prop:'cell'},
+    {name:'Jo',build:'moyen',skin:SKINS[5],hair:'boucles',hairColor:HAIRC[0],facial:'aucune',top:'tshirt',topColor:TOPC[2],head:'aucun',glasses:'carrees',acc:ACCC[1],mood:'concentre',prop:'tour'},
+    randomPlayer('Gab')]};
+  Object.assign(state.players[0],{race:'nain',cls:'guerrier'});
+  Object.assign(state.players[1],{race:'elfe',cls:'magicien',head:'aucun'});
+  Object.assign(state.players[2],{race:'tieffelin',cls:'roublard',skin:RACE_SKINS.tieffelin[1]});
+  Object.assign(state.players[3],{race:'humain',cls:'clerc'});
+}
+state.players.forEach(p=>{p.race=p.race||'humain';p.cls=p.cls||'aucune';p.eyes=p.eyes||pick(EYEC)});
+if(!state.ps) state.ps=3;
+if(state.anim===undefined) state.anim=!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+function save(){try{localStorage.setItem('tableJoueurs.v1',JSON.stringify(state))}catch(e){}}
+
+function buildPlayer(p,i,st,anim){
+  const F=c=>st.sketch?mix(c,PAPER,.72):c;
+  const S=c=>st.sketch?mix(c,PAPER,.5):mix(c,'#000000',.24);
+  const HL=c=>mix(c,'#ffffff',.32);
+  const ink=st.sw?st.stroke:'#262233';
+  const fw=st.sketch?1.5:st.pixel?Math.max(2.4,st.sw*.75):2.4;
+  const sa=o=>(o.ns||!st.sw)?' stroke="none"':` stroke="${ink}" stroke-width="${(o.w||1)*st.sw}" stroke-linejoin="round" stroke-linecap="round"`;
+  const op=o=>o.op!=null?` opacity="${o.op}"`:'';
+  const P=(d,f,o={})=>`<path d="${d}" fill="${f}"${sa(o)}${op(o)}/>`;
+  const E=(cx,cy,rx,ry,f,o={})=>`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${f}"${sa(o)}${op(o)}/>`;
+  const C=(cx,cy,r,f,o={})=>E(cx,cy,r,r,f,o);
+  const R=(x,y,w,h,r,f,o={})=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${f}"${sa(o)}${op(o)}/>`;
+  const Ln=(d,c=ink,w=fw)=>`<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const Band=(d,c,wd)=>Ln(d,st.sw?ink:S(c),wd+3)+Ln(d,F(c),wd);
+  // groupe animable : classe CSS en vectoriel, transform calculé image par image en Pixel
+  // groupe animable : pose calculée par animFor, mise à jour image par image (vectoriel) ou cuite dans l'image (Pixel)
+  const G=(key,inner,ox=0,oy=0)=>{
+    const a=(anim||{})[key]||{};
+    return `<g data-a="${key}" data-o="${ox},${oy}" transform="${trOf(a,ox,oy)}"${a.op!=null?` opacity="${a.op.toFixed(2)}"`:''}>${inner}</g>`;
+  };
+  const shadeOp=st.sketch?.1:.22, hiOp=st.sketch?0:.14;
+  const fold=c=>st.sw?mix(ink,c,.35):S(c);
+
+  const race=p.race||'humain', cls=p.cls||'aucune';
+  const isDrake=race==='drakeide', hooded=cls==='roublard';
+  const {w,dy}=geoOf(p,st);
+  const skin=F(p.skin), skinS=S(p.skin), hc=F(p.hairColor), hcS=S(p.hairColor), tc=F(p.topColor), ac=F(p.acc);
+  const tunic=F('#4a4038'), steel=F('#9aa3ad'), robe=F('#3b3a8a'), gold=F('#d9a93a'), leather=F('#6b4428'), cream=F('#f0ece2'), green=F('#3f5f3a'), hoodC=F('#2e2b38');
+  const torsoBase=cls==='magicien'?'#3b3a8a':p.top==='cape'?'#4a4038':p.top==='carreaux'?p.topColor:p.topColor;
+  const torsoFill=cls==='magicien'?robe:p.top==='carreaux'?`url(#plaid${i})`:p.top==='cape'?tunic:tc;
+  const showTop=cls!=='magicien';
+  const Lx=100-46*w, Rx=100+46*w, L2=100-58*w, R2=100+58*w;
+  let b='';
+
+  // derrière le corps
+  if(cls==='rodeur') b+=`<g transform="rotate(24 ${100+40*w} 120)">${R(100+32*w,82,16,52,3,leather)}${Ln(`M${100+34*w},96 L${100+46*w},96`,S('#6b4428'),2)}${[0,1,2].map(k=>P(`M${100+34*w+k*5},84 L${100+36*w+k*5},68 L${100+38*w+k*5},84Z`,k===1?F('#c23b3b'):cream,{w:.5})).join('')}</g>`;
+  if(hooded) b+=P('M58,100 Q54,28 100,24 Q146,28 142,100 L152,152 Q100,162 48,152Z',hoodC);
+  if(!isDrake&&!hooded){
+    b+={
+      long:P('M63,82 Q58,36 100,36 Q142,36 137,82 L142,152 L134,146 L128,160 L118,150 L108,162 L100,152 L92,162 L82,150 L72,160 L66,146 L58,152Z',hc)+Ln('M70,110 L68,146',hcS,1.6)+Ln('M130,110 L132,146',hcS,1.6),
+      chignon:C(100,38,15,hc)+Ln('M90,34 Q100,28 110,36',hcS,1.6)+Ln('M92,44 Q100,48 108,42',hcS,1.6),
+      queue:P('M116,50 Q154,46 150,96 Q150,118 144,132 L140,124 L138,142 Q132,110 122,80Z',hc)+Ln('M128,62 Q144,80 140,118',hcS,1.6),
+      boucles:[[70,74,15],[76,54,16],[92,42,16],[110,42,16],[124,54,16],[130,74,15],[68,96,12],[132,96,12],[72,114,10],[128,114,10]].map(c=>C(c[0],c[1],c[2],hc)).join('')
+    }[p.hair]||'';
+  }
+  if(showTop&&p.top==='cape') b+=P(`M${L2-14},252 L${L2-8},182 Q${100-50*w},136 100,134 Q${100+50*w},136 ${R2+8},182 L${R2+14},252Z`,tc)+Ln(`M${L2-6},200 L${L2-10},250`,fold(p.topColor),1.4)+Ln(`M${R2+6},200 L${R2+10},250`,fold(p.topColor),1.4);
+  b+=P(`M${L2},252 L${L2},200 Q${Lx},150 ${100-24*w},140 L${100+24*w},140 Q${Rx},150 ${R2},200 L${R2},252Z`,torsoFill);
+  b+=P(`M${100+28*w},146 Q${Rx},152 ${R2},200 L${R2},252 L${100+38*w},252 Q${100+42*w},190 ${100+28*w},146Z`,'#1a1030',{ns:1,op:shadeOp});
+  b+=P(`M${L2+3},198 Q${Lx+2},154 ${100-24*w},144 Q${Lx+12},162 ${L2+12},198Z`,'#ffffff',{ns:1,op:hiOp});
+  if(showTop&&p.top==='hoodie') b+=E(100,141,34,12,S(p.topColor))+Ln('M72,141 Q100,152 128,141',fold(p.topColor),1.2);
+  if(cls==='magicien') b+=P('M78,146 Q58,116 64,82 Q78,112 96,140Z',robe)+P('M122,146 Q142,116 136,82 Q122,112 104,140Z',robe)+Ln('M68,90 Q74,116 90,140',gold,2)+Ln('M132,90 Q126,116 110,140',gold,2);
+  b+=R(89,100,22,46,4,skin);
+  b+=P('M89,118 Q100,130 111,118 L111,128 Q100,136 89,128Z',skinS,{ns:1});
+  // bras et plis : séparent les bras du torse pour casser la forme de bloc
+  b+=Ln(`M${100-31*w},164 Q${100-35*w},204 ${100-34*w},252`,fold(torsoBase),st.sw?fw*.8:1.6)+Ln(`M${100+31*w},164 Q${100+35*w},204 ${100+34*w},252`,fold(torsoBase),st.sw?fw*.8:1.6);
+  b+=Ln(`M${100-46*w},214 Q${100-50*w},224 ${100-47*w},236`,fold(torsoBase),1.3)+Ln(`M${100+44*w},208 Q${100+48*w},220 ${100+45*w},232`,fold(torsoBase),1.3)+Ln(`M${100-12*w},226 Q${100-4*w},232 ${100+6*w},228`,fold(torsoBase),1.2);
+  // détails du haut (vêtements IRL)
+  if(showTop){
+    if(p.top==='hoodie'){b+=Ln('M92,150 L90,178',cream,2.6)+Ln('M108,150 L110,178',cream,2.6)+C(90,180,2,cream,{ns:1})+C(110,180,2,cream,{ns:1})+P(`M${100-22*w},214 L${100+22*w},214 L${100+26*w},240 L${100-26*w},240Z`,S(p.topColor),{w:.6})}
+    if(p.top==='tshirt'){
+      b+=Ln('M86,141 Q100,156 114,141');
+      const cx=100,cy=186,r=14,pts=[...Array(6)].map((_,k)=>{const a=Math.PI/3*k-Math.PI/2;return [cx+r*Math.cos(a),cy+r*Math.sin(a)]});
+      b+=P('M'+pts.map(q=>q.map(v=>v.toFixed(1)).join(',')).join(' L')+'Z',F('#f2efe8'),{w:.6});
+      b+=Ln(`M${pts[0]} L${pts[2]} L${pts[4]}Z`,st.sw?ink:S('#f2efe8'),1.4);
+      b+=`<text x="100" y="190" font-size="7" font-family="sans-serif" font-weight="700" text-anchor="middle" fill="${F('#c23b3b')}">20</text>`;
+    }
+    if(p.top==='carreaux'){
+      b+=P('M84,140 L100,156 L92,166 L80,146Z',F(mix(p.topColor,'#ffffff',.25)))+P('M116,140 L100,156 L108,166 L120,146Z',F(mix(p.topColor,'#ffffff',.25)));
+      b+=Ln('M100,158 L100,252',fold(p.topColor),1.2)+[176,198,220].map(y=>C(100,y,2.2,cream,{ns:1})).join('');
+      b+=R(100-30*w,172,16,14,2,'#000000',{ns:1,op:.15});
+    }
+    if(p.top==='cardigan'){
+      b+=P('M86,141 L100,180 L114,141Z',cream);
+      b+=Ln('M100,180 L100,252',st.sw?ink:S(p.topColor),2);
+      b+=[194,214,234].map(y=>C(95,y,2.4,ac,{ns:1})).join('');
+      b+=Ln(`M${100-28*w},150 L${100-26*w},252`,fold(p.topColor),1)+Ln(`M${100+28*w},150 L${100+26*w},252`,fold(p.topColor),1);
+    }
+    if(p.top==='cape'){
+      b+=P(`M${100-30*w},142 Q100,160 ${100+30*w},142 Q100,150 ${100-30*w},142Z`,S(p.topColor));
+      b+=C(100,150,6,gold)+C(98,148,1.8,'#ffffff',{ns:1,op:.7});
+    }
+  }
+  // traits de classe sur le corps
+  if(cls==='guerrier'){
+    b+=P(`M${100-34*w},162 Q100,150 ${100+34*w},162 L${100+38*w},252 L${100-38*w},252Z`,steel);
+    b+=P(`M${100+12*w},158 Q${100+34*w},160 ${100+38*w},252 L${100+24*w},252 Q${100+22*w},200 ${100+12*w},158Z`,'#1a1030',{ns:1,op:shadeOp});
+    b+=P(`M${100-28*w},166 Q${100-16*w},160 ${100-8*w},162 L${100-12*w},200 Q${100-24*w},190 ${100-28*w},166Z`,'#ffffff',{ns:1,op:st.sketch?0:.3});
+    b+=Ln('M100,156 L100,252',S('#9aa3ad'),2.4)+Ln(`M${100-36*w},206 Q100,214 ${100+36*w},206`,S('#9aa3ad'),1.6);
+    b+=[[-24,178],[24,178],[-26,212],[26,212]].map(q=>C(100+q[0]*w,q[1],2.2,S('#9aa3ad'),{ns:1})).join('');
+    b+=P('M84,136 Q100,148 116,136 L119,150 Q100,162 81,150Z',S('#9aa3ad'));
+    const pw=Math.min(w,1.05);
+    b+=[-1,1].map(s=>E(100+s*44*w,156,17*pw,13,steel)+E(100+s*44*w-4*s,151,7*pw,3.6,'#ffffff',{ns:1,op:st.sketch?0:.35})+Ln(`M${100+s*62*w},162 Q${100+s*46*w},150 ${100+s*30*w},162`,S('#9aa3ad'),2.2)+Ln(`M${100+s*60*w},167 Q${100+s*46*w},158 ${100+s*32*w},167`,S('#9aa3ad'),1.4)).join('');
+  }
+  if(cls==='clerc'){
+    b+=P(`M${100-24*w},148 L${100+24*w},148 L${100+22*w},252 L${100-22*w},252Z`,cream);
+    b+=Ln(`M${100-19*w},152 L${100-17*w},252`,gold,2.4)+Ln(`M${100+19*w},152 L${100+17*w},252`,gold,2.4)+Ln(`M${100+8*w},210 Q${100+12*w},230 ${100+9*w},250`,S('#f0ece2'),1.2);
+    b+=G('pulse',[...Array(8)].map((_,k)=>{const a=Math.PI/4*k;return Ln(`M${(100+11*Math.cos(a)).toFixed(1)},${(186+11*Math.sin(a)).toFixed(1)} L${(100+16*Math.cos(a)).toFixed(1)},${(186+16*Math.sin(a)).toFixed(1)}`,gold,2.4)}).join('')+C(100,186,8,gold)+C(100,186,3.5,F('#fff3c4'),{ns:1}));
+  }
+  if(cls==='roublard'){
+    b+=Band(`M${100-40*w},152 L${100+34*w},244`,'#6b4428',5)+R(100+2*w,192,10,8,1,gold)+[0,1,2].map(k=>R(100-16*w+k*8*w,170+k*16,5,9,1,steel,{w:.5})).join('');
+    b+=P('M83,128 Q100,142 117,128 L121,148 Q100,160 79,148Z',ac)+Ln('M88,140 Q100,148 112,140',S(p.acc),1.2);
+  }
+  if(cls==='rodeur'){
+    b+=P(`M${L2-4},206 Q${Lx-6},150 ${100-22*w},138 Q100,150 ${100+22*w},138 Q${Rx+6},150 ${R2+4},206 L${R2-10},210 Q${Rx-6},166 ${100+18*w},152 Q100,160 ${100-18*w},152 Q${Lx+6},166 ${L2+10},210Z`,green);
+    b+=Ln(`M${100-40*w},170 Q${100-44*w},186 ${100-42*w},200`,S('#3f5f3a'),1.4)+Ln(`M${100+40*w},170 Q${100+44*w},186 ${100+42*w},200`,S('#3f5f3a'),1.4);
+    b+=Band(`M${100-30*w},156 L${100+40*w},240`,'#6b4428',4)+C(100+2*w,194,3.5,gold);
+  }
+  if(cls==='magicien'){
+    b+=Ln('M86,142 L100,176 L114,142',gold,3);
+    const star=(x,y,s=1)=>P(`M${x},${y-6*s} L${x+1.6*s},${y-1.6*s} L${x+6*s},${y} L${x+1.6*s},${y+1.6*s} L${x},${y+6*s} L${x-1.6*s},${y+1.6*s} L${x-6*s},${y} L${x-1.6*s},${y-1.6*s}Z`,gold,{ns:1});
+    b+=star(100-30*w,200)+star(100+28*w,222)+star(100-18*w,236,.7)+star(100+14*w,192,.6)+C(100+34*w,200,1.6,gold,{ns:1})+C(100-8*w,214,1.4,gold,{ns:1});
+  }
+  if(cls==='barde'){
+    b+=Band(`M${100-34*w},250 L150,126`,'#a8743f',6);
+    b+=P('M146,130 L156,112 L163,116 L153,134Z',F('#7a5236'))+[0,1,2].map(k=>C(152+k*3,116+k*5,1.6,gold,{ns:1})).join('');
+    b+=Ln(`M${100-33*w},248 L149,128`,cream,.8);
+    b+=[-3,-2,-1,0,1,2,3].map(k=>C(100+k*7,142+Math.abs(k)*.6,6,cream)).join('');
+    b+=P(`M${100+20*w},200 Q${100+30*w},196 ${100+34*w},206 L${100+24*w},214Z`,ac,{w:.6});
+  }
+  // traits raciaux derrière la tête
+  if(isDrake) b+=P('M78,60 Q64,36 54,28 Q68,46 86,56Z',F('#e8dcc0'))+P('M122,60 Q136,36 146,28 Q132,46 114,56Z',F('#e8dcc0'))+Ln('M66,44 L70,48',S('#e8dcc0'),1.4)+Ln('M134,44 L130,48',S('#e8dcc0'),1.4);
+  if(race==='tieffelin') b+=G('tail',Band(`M${100+52*w},210 Q${100+70*w},150 ${100+50*w},126 Q${100+44*w},116 ${100+52*w},106`,p.skin,6)+P(`M${100+52*w},106 L${100+44*w},96 L${100+58*w},96Z`,skin),100+52*w,210);
+
+  // tête
+  let h='';
+  const pointy={elfe:'long',orc:'court',tieffelin:'court',gnome:'court',halfelin:'court'}[race];
+  if(!isDrake){
+    if(pointy==='long') h+=P('M72,84 Q58,70 46,58 Q58,86 72,98Z',skin)+Ln('M68,86 Q58,74 52,66',skinS,1.4)+P('M128,84 Q142,70 154,58 Q142,86 128,98Z',skin)+Ln('M132,86 Q142,74 148,66',skinS,1.4);
+    else if(pointy) h+=P('M72,84 Q62,78 58,68 Q60,90 72,98Z',skin)+Ln('M68,86 Q63,80 62,74',skinS,1.4)+P('M128,84 Q138,78 142,68 Q140,90 128,98Z',skin)+Ln('M132,86 Q137,80 138,74',skinS,1.4);
+    else h+=E(70,90,7,9,skin)+Ln('M71,86 Q67,90 71,95',skinS,1.6)+E(130,90,7,9,skin)+Ln('M129,86 Q133,90 129,95',skinS,1.6);
+    h+=P('M70,82 Q70,50 100,50 Q130,50 130,82 Q130,112 112,121 Q100,126 88,121 Q70,112 70,82Z',skin);
+  } else {
+    h+=P('M72,92 L60,98 L72,104Z',S(p.skin))+P('M128,92 L140,98 L128,104Z',S(p.skin));
+    h+=P('M72,88 Q68,52 100,50 Q132,52 128,88 Q129,104 121,112 L119,122 Q100,132 81,122 L79,112 Q71,104 72,88Z',skin);
+    h+=P('M84,112 Q100,120 116,112 L117,121 Q100,130 83,121Z',F(mix(p.skin,'#f2e2b8',.55)),{ns:1});
+  }
+  h+=P('M116,56 Q131,68 129,90 Q126,112 106,123 Q122,104 121,82 Q120,66 116,56Z',skinS,{ns:1});
+  h+=P('M76,64 Q80,54 92,52 Q82,58 80,70Z','#ffffff',{ns:1,op:hiOp});
+  if(!isDrake){
+    h+={
+      trois:P('M72,90 Q72,112 88,121 Q100,126 112,121 Q128,112 128,90 Q122,108 110,108 Q100,104 90,108 Q78,108 72,90Z',hc,{ns:1,op:.38}),
+      barbe:P('M71,86 Q69,126 100,138 Q131,126 129,86 Q124,108 112,110 Q100,104 88,110 Q76,108 71,86Z',hc)+Ln('M80,112 Q84,124 92,130',hcS,1.4)+Ln('M120,112 Q116,124 108,130',hcS,1.4)+Ln('M100,118 L100,132',hcS,1.4),
+      moustache:P('M86,103 Q94,96 100,100 Q106,96 114,103 Q110,108 104,105 Q100,103 96,105 Q90,108 86,103Z',hc)
+    }[p.facial]||'';
+    // barbes de nain : tresses avec anneaux, barbe fourchue, grande barbe à perles
+    const stache=P('M84,103 Q93,95 100,100 Q107,95 116,103 Q111,109 104,105 Q100,103 96,105 Q89,109 84,103Z',hc);
+    const base=P('M71,86 Q69,126 100,138 Q131,126 129,86 Q124,108 112,110 Q100,104 88,110 Q76,108 71,86Z',hc)+Ln('M80,112 Q84,124 92,130',hcS,1.4)+Ln('M120,112 Q116,124 108,130',hcS,1.4);
+    const braid=(x,y0,y1,sway)=>{let s='';for(let y=y0;y<=y1;y+=6){const xx=x+sway*(y-y0)/(y1-y0);s+=E(xx,y,4.8,3.8,hc)+Ln(`M${xx-3},${y-1.5} L${xx+2.5},${y+1.5}`,hcS,1.1)}
+      const xe=x+sway;return s+R(xe-4.5,y1+3,9,4.6,1.2,gold)+Ln(`M${xe-3},${y1+4.5} L${xe+3},${y1+4.5}`,HL('#d9a93a'),1)+P(`M${xe-4},${y1+7.5} L${xe+4},${y1+7.5} L${xe+2.5},${y1+15} L${xe},${y1+11} L${xe-2.5},${y1+15}Z`,hc)};
+    if(p.facial==='tresse') h+=base+braid(100,132,160,0)+stache;
+    if(p.facial==='fourche') h+=base+braid(91,128,154,-4)+braid(109,128,154,4)+stache;
+    if(p.facial==='longue') h+=P('M70,86 Q66,130 82,152 L86,146 L90,162 L96,150 L100,166 L104,150 L110,162 L114,146 L118,152 Q134,130 130,86 Q124,108 112,110 Q100,104 88,110 Q76,108 70,86Z',hc)+['M82,116 Q86,136 90,152','M94,118 Q96,138 96,154','M106,118 Q104,138 104,154','M118,116 Q114,136 110,152'].map(d=>Ln(d,hcS,1.4)).join('')+[[86,136],[100,142],[114,136]].map(c=>C(c[0],c[1],2.8,gold)).join('')+stache;
+  } else {
+    h+=Ln('M90,62 Q95,67 100,62 Q105,67 110,62',S(p.skin),1.8)+Ln('M94,70 Q100,74 106,70',S(p.skin),1.6)+Ln('M78,96 Q82,100 80,106',S(p.skin),1.3)+Ln('M122,96 Q118,100 120,106',S(p.skin),1.3);
+  }
+  // yeux : blanc, iris, pupille, reflet et paupière épaisse façon BD
+  const special=race==='tieffelin'||isDrake;
+  const es=st.chibi?1.45:race==='gnome'?1.15:1;
+  const irisC=F(p.eyes||'#5a3a22'), lashC=st.sw?ink:'#262233', browC=(isDrake||p.hair==='chauve')?S(p.skin):F(mix(p.hairColor,'#000000',.35));
+  const ex=[88,112], ey=86, m=p.mood;
+  const H={content:.95,concentre:.62,blase:.48,fache:.78,surpris:1.25}[m];
+  const eye=(x)=>{
+    const rx=6.4*es, ry=4.8*H*es, ir=(m==='surpris'?2.6:3.7)*es;
+    let s='';
+    if(special){
+      s+=E(x,ey,rx,ry,F('#f5c542'),{ns:1})+E(x,ey,1.1*es,Math.min(ry,4.4*es),'#1a0d10',{ns:1})+C(x+1.8*es,ey-1.2*es,1*es,'#ffffff',{ns:1});
+    } else {
+      s+=E(x,ey,rx,ry,'#ffffff',{ns:1});
+      s+=E(x+.4,ey+.4*H,ir,Math.min(ir*1.15,ry),irisC,{ns:1});
+      s+=E(x+.4,ey+.6*H,ir*.48,Math.min(ir*.58,ry*.7),'#120c14',{ns:1});
+      s+=C(x+1.9*es,ey-1.3*es*H,1.25*es,'#ffffff',{ns:1})+C(x-1.4*es,ey+1.6*es*H,.6*es,'#ffffff',{ns:1,op:.8});
+    }
+    s+=Ln(`M${x-rx-1},${ey+.5} Q${x},${ey-ry*1.6} ${x+rx+1},${ey-.5}`,lashC,fw*1.35);
+    if(x<100) s+=Ln(`M${x-rx-1},${ey+.5} L${x-rx-3},${ey-1.6}`,lashC,fw*.9); else s+=Ln(`M${x+rx+1},${ey-.5} L${x+rx+3},${ey-2.2}`,lashC,fw*.9);
+    s+=Ln(`M${x-3.5*es},${ey+ry+1.2} Q${x},${ey+ry+2} ${x+3.5*es},${ey+ry+1.2}`,skinS,1.1);
+    return s;
+  };
+  const eyes=ex.map(eye).join('');
+  const brow=(xIn,yIn,xOut,yOut)=>P(`M${xIn},${yIn} Q${(xIn+xOut)/2},${Math.min(yIn,yOut)-3.2} ${xOut},${yOut} Q${(xIn+xOut)/2},${Math.min(yIn,yOut)-.6} ${xIn},${yIn+2.6}Z`,browC,{ns:1});
+  const BR={content:[75,74],concentre:[78,74],blase:[78,78],fache:[81,71],surpris:[69,71]}[m];
+  let face=brow(95,BR[0],79,BR[1])+brow(105,BR[0],121,BR[1]);
+  const mouthIn=F('#5a2230'), tongue=F('#d9667a');
+  if(m==='content') face+=P('M90,104 Q100,105 110,104 Q107,114 100,115 Q93,114 90,104Z',mouthIn,{w:.5})+P('M92,104.6 Q100,105.6 108,104.6 L107,107 Q100,108 93,107Z','#ffffff',{ns:1})+E(100,112,4,2,tongue,{ns:1});
+  if(m==='concentre') face+=Ln('M93,108 Q100,106 107,107',lashC,fw*.8)+E(105,109.6,2.4,2,tongue,{w:.4});
+  if(m==='blase') face+=Ln('M93,109 Q100,107.5 107,110',lashC,fw*.8)+Ln('M84,92 Q88,94 92,92',skinS,1)+Ln('M108,92 Q112,94 116,92',skinS,1);
+  if(m==='fache') face+=P('M90,109 Q100,103 110,109 L108,114 Q100,111 92,114Z','#ffffff',{w:.6})+Ln('M96,106 L96,112.5',S('#ffffff'),.8)+Ln('M100,105 L100,111.5',S('#ffffff'),.8)+Ln('M104,106 L104,112.5',S('#ffffff'),.8);
+  if(m==='surpris') face+=E(100,110,4.2,5.8,mouthIn,{w:.6})+E(100,113,2.4,1.4,tongue,{ns:1});
+  if(m==='content'||m==='surpris') face+=E(80,99,5,2.6,'#ff6f86',{ns:1,op:st.sketch?.2:.32})+E(120,99,5,2.6,'#ff6f86',{ns:1,op:st.sketch?.2:.32});
+  if(m==='fache') face+=Ln('M122,64 L126,60 M124,66 L130,64',F('#c23b3b'),1.6);
+  h+=G('blink',eyes,100,ey)+face;
+  // nez selon la race
+  if(isDrake) h+=E(94,99,2,1.3,lashC,{ns:1})+E(106,99,2,1.3,lashC,{ns:1});
+  else if(race==='gnome') h+=E(100,96,8,7,F(mix(p.skin,'#e07a6a',.35)))+C(97,93,2,'#ffffff',{ns:1,op:.5});
+  else if(race==='nain') h+=E(100,95,6,5.5,skin)+E(103,96,3,3,skinS,{ns:1});
+  else h+=P('M100,90 Q97,96 99,99 Q102,100 104,98 Q101,98 100,96Z',skinS,{ns:1})+Ln('M100,91 Q98,96 100,98.5',st.sw?ink:skinS,fw*.6);
+  if(race==='orc'){
+    h+=P('M80,74 Q100,68 120,74 Q100,72 80,74Z',skinS,{ns:1,op:.9});
+    h+=P('M91,111 L89,100 L95,108Z',cream,{w:.5})+P('M109,111 L111,100 L105,108Z',cream,{w:.5});
+  }
+  // cheveux avant : mèches pointues, mèches de couleur et reflet
+  if(!isDrake){
+    const strands=(arr)=>arr.map(d=>Ln(d,hcS,1.5)).join('');
+    h+={
+      court:P('M66,88 Q60,46 100,40 Q142,46 134,88 L130,74 L125,80 L121,64 L113,72 L106,58 L98,70 L90,60 L85,72 L78,64 L73,80Z',hc)+strands(['M108,46 Q114,54 113,64','M92,46 Q87,54 88,62','M78,56 Q74,64 75,72','M122,56 Q127,64 126,72']),
+      long:P('M63,108 Q56,46 100,40 Q144,46 137,108 L133,126 L129,100 L127,80 L121,64 L113,72 L106,58 L98,70 L90,60 L85,72 L79,66 L73,80 L71,100 L67,126Z',hc)+strands(['M108,46 Q114,54 113,64','M92,46 Q87,54 88,62','M70,84 Q68,104 70,120','M130,84 Q132,104 130,120']),
+      chignon:P('M67,84 Q62,44 100,42 Q138,44 133,84 L128,70 Q118,56 100,58 Q90,58 84,64 L80,60 L76,72Z',hc)+strands(['M84,52 Q96,46 112,50','M80,60 Q92,52 116,56']),
+      queue:P('M67,84 Q62,44 100,42 Q138,44 133,84 L128,72 Q120,56 100,58 Q90,58 84,64 L80,60 L76,72Z',hc)+strands(['M84,52 Q100,46 120,52','M80,62 Q98,52 126,62']),
+      boucles:[[78,60,10],[90,52,11],[104,50,11],[117,55,10],[126,66,9],[72,70,9]].map(c=>C(c[0],c[1],c[2],hc)).join('')+[[90,52],[104,50],[117,55]].map(c=>Ln(`M${c[0]-4},${c[1]} Q${c[0]},${c[1]-4} ${c[0]+3},${c[1]+1}`,hcS,1.4)).join(''),
+      rase:P('M71,78 Q69,48 100,47 Q131,48 129,78 Q114,62 100,62 Q86,62 71,78Z',hc,{ns:1,op:.55}),
+      crete:P('M71,78 Q69,48 100,47 Q131,48 129,78 Q114,62 100,62 Q86,62 71,78Z',hc,{ns:1,op:.45})+(hooded?'':P('M90,66 L84,40 L92,46 L92,20 L100,34 L106,14 L108,38 L116,30 L110,66Z',hc)+strands(['M100,62 L100,38','M95,60 L92,44','M105,60 L108,40'])),
+      chauve:st.sketch?'':E(112,58,7,3,'#ffffff',{ns:1,op:.35})
+    }[p.hair]||'';
+    if(!st.sketch&&!hooded&&['court','long','chignon','queue'].includes(p.hair)) h+=P('M80,54 Q92,46 106,48 L104,52 Q92,51 82,58Z',HL(p.hairColor),{ns:1});
+  }
+  if(race==='tieffelin') h+=P('M80,58 Q68,30 84,14 Q80,34 91,54Z',F('#3a2a35'))+P('M120,58 Q132,30 116,14 Q120,34 109,54Z',F('#3a2a35'))+Ln('M78,46 L84,44 M78,38 L82,36',HL('#3a2a35'),1.2)+Ln('M122,46 L116,44 M122,38 L118,36',HL('#3a2a35'),1.2);
+  // lunettes
+  const gc=st.sw?ink:'#262233', lens='rgba(190,220,255,0.28)';
+  if(p.glasses==='rondes'){h+=ex.map(x=>`<circle cx="${x}" cy="${ey}" r="${9*es}" fill="${lens}" stroke="${gc}" stroke-width="${fw}"/>`+Ln(`M${x-4*es},${ey-5*es} L${x-1*es},${ey-7*es}`,'#ffffff',1.4)).join('')+Ln('M97,85 Q100,82 103,85',gc)+Ln('M79,84 L71,82',gc)+Ln('M121,84 L129,82',gc)}
+  if(p.glasses==='carrees'){h+=ex.map(x=>`<rect x="${x-10*es}" y="${ey-7*es}" width="${20*es}" height="${14*es}" rx="2" fill="${lens}" stroke="${gc}" stroke-width="${fw}"/>`+Ln(`M${x-6*es},${ey-4*es} L${x-3*es},${ey-6*es}`,'#ffffff',1.4)).join('')+Ln('M98,84 L102,84',gc)+Ln('M78,83 L71,82',gc)+Ln('M122,83 L129,82',gc)}
+  // capuchon du roublard ou chapeau
+  if(hooded) h+=P('M58,100 Q54,28 100,24 Q146,28 142,100 L136,124 Q134,66 100,58 Q66,66 64,124Z',hoodC)+Ln('M70,110 Q68,70 100,64 Q132,70 130,110',S('#2e2b38'),2)+Ln('M100,26 Q104,40 100,58',S('#2e2b38'),1.4);
+  else {
+    if(p.head==='casquette'){h+=P('M68,72 Q66,38 100,38 Q134,38 132,72 Q100,64 68,72Z',ac)+Ln('M100,38 L100,66',S(p.acc),1.3)+P('M60,72 Q100,88 140,72 Q100,62 60,72Z',S(p.acc))+C(100,38,3,S(p.acc),{ns:1})+P('M78,52 Q86,44 96,42 Q88,48 84,58Z','#ffffff',{ns:1,op:hiOp})}
+    if(p.head==='tuque'){h+=C(100,26,10,F(mix(p.acc,'#ffffff',.6)))+P('M66,74 Q64,30 100,30 Q136,30 134,74Z',ac)+P('M64,64 Q100,58 136,64 L137,80 Q100,73 63,80Z',S(p.acc))+[74,86,100,114,126].map(x=>Ln(`M${x},${x===100?60:62} L${x},${x===100?74:76}`,mix(S(p.acc),'#000000',.2),1.4)).join('')+Ln('M84,36 L84,58 M100,32 L100,58 M116,36 L116,58',S(p.acc),1)}
+    if(p.head==='sorcier'){h+=E(100,60,54,11,S(p.acc))+P('M70,60 Q84,36 90,12 Q96,-8 120,-4 Q106,8 110,30 Q118,48 130,60 Q100,66 70,60Z',ac)+P('M72,56 Q100,62 128,56 L129,62 Q100,68 71,62Z',gold,{ns:1})+C(108,30,3,F('#f6e27a'),{ns:1})+C(92,40,2,F('#f6e27a'),{ns:1})+Ln('M86,48 Q92,30 100,10',HL(p.acc),1.6)}
+    if(p.head==='ecouteurs'){h+=Band('M64,86 Q62,32 100,30 Q138,32 136,86',p.acc,5)+R(56,74,14,26,6,ac)+R(130,74,14,26,6,ac)+R(59,79,4,16,2,S(p.acc),{ns:1})+R(137,79,4,16,2,S(p.acc),{ns:1})}
+  }
+  const hInner=st.chibi?`<g transform="translate(100,124) scale(1.38) translate(-100,-124)">${h}</g>`:h;
+  b+=G('head',hInner,100,126);
+  if(cls==='magicien') b+=G('float',C(160,132,16,'#8fe1ff',{ns:1,op:st.sketch?.15:.25})+C(160,132,9,F('#8fe1ff'))+P('M155,128 Q160,124 165,128',F('#ffffff'),{ns:1,op:.8})+C(157,129,2.4,'#ffffff',{ns:1}));
+
+  // devant : objet sur la table et mains animées
+  let f='';
+  const {hxL,hxR}=geoOf(p,st);
+  const cuffBase=cls==='magicien'?'#3b3a8a':p.top==='tshirt'?p.skin:p.top==='cape'?'#4a4038':p.topColor;
+  const cuff=cls==='magicien'?robe:p.top==='tshirt'?skin:p.top==='cape'?tunic:torsoFill;
+  const hand=(x,flip,y=208)=>{const s=flip?-1:1,o=y-208;
+    return P(`M${x-12*s},${207+o} Q${x-13*s},${199+o} ${x-4*s},${199.5+o} L${x+8*s},${199+o} Q${x+14*s},${200+o} ${x+13*s},${207+o} Q${x+12*s},${215+o} ${x},${215+o} Q${x-11*s},${215+o} ${x-12*s},${207+o}Z`,skin)
+      +[-2,3,8].map(k=>Ln(`M${x+k*s},${200+o} L${x+k*s+.5*s},${205+o}`,skinS,1.2)).join('')+P(`M${x-12*s},${207+o} Q${x-8*s},${212+o} ${x-2*s},${210+o} Q${x-8*s},${215+o} ${x-11*s},${211+o}Z`,skinS,{ns:1,op:.8});};
+  const cuffAt=(x,y=201)=>E(x,y,15,8,cuff)+Ln(`M${x-10},${y-2} Q${x},${y+3} ${x+10},${y-2}`,fold(cuffBase),1.1);
+  const d6=(x,y,c,dots=1)=>R(x,y,11,11,2,c)+P(`M${x+1},${y+2} L${x+10},${y+2}`,'none',{ns:1})+R(x+1.5,y+1.2,8,2,1,'#ffffff',{ns:1,op:.35})+(dots===1?C(x+5.5,y+5.5,1.4,'#262233',{ns:1}):C(x+3.2,y+3.4,1.1,'#262233',{ns:1})+C(x+7.8,y+7.8,1.1,'#262233',{ns:1}));
+  if(cls==='roublard') f+=P('M54,226 L80,212 L83,216 L57,230Z',steel)+Ln('M58,226 L80,214',HL('#9aa3ad'),1)+R(80,207,6,11,1,leather);
+  if(p.prop==='des'){
+    const cx=90,cy=214,r=9,pts=[...Array(6)].map((_,k)=>{const a=Math.PI/3*k-Math.PI/2;return (cx+r*Math.cos(a)).toFixed(1)+','+(cy+r*Math.sin(a)).toFixed(1)});
+    f+=G('roll',P('M'+pts.join(' L')+'Z',ac)+Ln(`M${pts[0]} L${pts[2]} L${pts[4]}Z`,S(p.acc),1)+R(104,207,13,13,2,cream)+C(110.5,213.5,1.6,'#262233',{ns:1})+C(107,210,1.2,'#262233',{ns:1})+C(114,217,1.2,'#262233',{ns:1}),98,214);
+  }
+  if(p.prop==='pile'){
+    const cols=[ac,cream,F('#c23b3b'),F('#3a6fc4'),ac,cream];
+    let st6='';for(let k=0;k<6;k++) st6+=G('die'+k,d6(STACK_X-5.5,216-11*(k+1),cols[k],k%2?2:1),STACK_X,216-11*k-5.5);
+    f+=G('stack',st6,STACK_X,216);
+  }
+  if(p.prop==='tour'){f+=R(104,150,28,64,2,F('#7a5236'))+Ln('M110,160 L126,160 M110,170 L126,170',F('#5a3924'),1.2)+R(109,192,18,14,1,F('#3a2618'),{ns:1})+R(104,150,28,8,2,F('#93653f'))+G('bounce',R(90,206,10,10,2,ac)+C(95,211,1.4,'#ffffff',{ns:1}),95,211)}
+  if(p.prop==='canette'){f+=G('sip',R(90,184,18,30,4,ac)+E(99,184,9,2.6,F('#c9ccd3'))+R(90,195,18,6,0,cream,{ns:1})+R(93,186,3,26,1.5,'#ffffff',{ns:1,op:.35}),99,214)}
+  if(p.prop==='chips'){f+=P('M83,190 L117,188 L121,222 L79,224Z',F('#e8b23a'))+Ln('M84,194 L116,192',S('#e8b23a'),1.2)+C(100,206,8,F('#c23b3b'))+[[124,224],[130,220],[76,226]].map(c=>E(c[0],c[1],3.2,2,F('#f2c94c'),{w:.5})).join('')}
+  if(p.prop==='fiche'){f+=P('M78,206 L122,206 L128,230 L72,230Z',F('#f4f0e6'))+R(84,208,10,6,1,F('#9a9488'),{ns:1,op:.6})+[212,218,224].map(y=>Ln(`M${84-(y-206)*.2+(y===212?12:0)},${y} L${116+(y-206)*.2},${y}`,F('#9a9488'),1.2)).join('')+G('scribble',Ln('M118,224 L134,206',F('#e0a53a'),4)+Ln('M118,224 L120,222',F('#3a2a35'),2),118,224)}
+  // main gauche : toujours sur la table
+  f+=G('handL',cuffAt(hxL)+hand(hxL,false),hxL,208);
+  if(p.prop==='cell'){
+    // le cell est tenu de la main droite, le pouce scrolle le fil
+    f+=G('handR',cuffAt(112,206)+hand(110,true,214),110,214);
+    const feed=[0,1,2,3,4,5].map(k=>{const y=188+k*9;return R(94,y,12,6,1,'#ffffff',{ns:1,op:.85})+R(95,y+1,4,4,1,k%2?F('#e86fa0'):F('#3a6fc4'),{ns:1})+R(100,y+1.5,5,1.2,.5,'#9aa3ad',{ns:1})}).join('');
+    f+=G('phone',R(89,180,22,36,4,F('#222228'))+R(92,184,16,28,2,st.sketch?F('#8fd8ff'):'#8fd8ff',{ns:1})
+      +`<clipPath id="scr${i}"><rect x="92" y="184" width="16" height="28" rx="2"/></clipPath><g clip-path="url(#scr${i})">${G('feed',feed,0,0)}</g>`
+      +(st.sketch?'':E(100,198,26,20,'#8fd8ff',{ns:1,op:.12}))
+      +G('thumb',P('M101,212 Q99,203 104,200 Q109,201 109,208 Q109,214 104,216Z',skin)+Ln('M103,203 Q106,202 107,205',skinS,1),104,208),100,199);
+  } else {
+    // main droite : pige des chips, empile des dés, ou reste sur la table
+    const held=p.prop==='pile'?G('held',d6(hxR-5.5,190,ac,1),hxR,196):p.prop==='chips'?G('chip',E(hxR,198,4.5,3,F('#f2c94c'),{w:.6}),hxR,198):'';
+    f+=G('handR',cuffAt(hxR)+held+hand(hxR,true),hxR,208);
+  }
+  return {back:b,front:f,dy};
+}
+
+const STACK_X=86;
+function geoOf(p,st){
+  let w={mince:.84,moyen:1,large:1.22}[p.build]*({nain:1.15,orc:1.14,halfelin:.92,gnome:.88}[p.race]||1); if(st.chibi) w*=.86;
+  return {w,dy:{nain:12,halfelin:22,gnome:26}[p.race]||0,hxL:100-44*w,hxR:100+44*w};
+}
+function trOf(a,ox,oy){
+  return `translate(${(a.tx||0).toFixed(2)},${(a.ty||0).toFixed(2)}) rotate(${(a.r||0).toFixed(2)} ${ox} ${oy}) translate(${ox},${oy}) scale(${a.sx||1},${a.sy||1}) translate(${-ox},${-oy})`;
+}
+// Toutes les poses idle, en fonction du temps : une seule source pour le vectoriel et le Pixel
+function animFor(i,p,t,geo){
+  const PI=Math.PI, d=(i*1.37)%3, T=3+i*.35, B=4.2+i*.9, tt=t+d;
+  const ph=per=>(((tt%per)+per)%per)/per;
+  const lerp=(a,b,s)=>a+(b-a)*s, ease=s=>s<.5?2*s*s:1-2*(1-s)*(1-s), clamp=s=>Math.max(0,Math.min(1,s));
+  const A={};
+  A.breath={ty:1.8*(.5-.5*Math.cos(PI*tt/T))};
+  let r=1.8*Math.sin(PI*tt/(1.7*T)), hy=0;
+  if(p.mood==='fache'){r=1.2*Math.sin(2*PI*tt/.9);hy=.3}
+  if(p.mood==='blase'){r=-2.5+1.5*Math.sin(PI*tt/5);hy=1+Math.sin(PI*tt/5)}
+  if(p.mood==='surpris'){const q=ph(2.6);hy=q>.68&&q<.84?-5*Math.sin((q-.68)/.16*PI):0;r=hy*.4}
+  if(p.mood==='concentre'){const q=ph(3.2);r=q>.6&&q<.82?3*Math.sin((q-.6)/.22*PI):0;hy=r*.6}
+  if(p.prop==='cell'){r=r*.4+3;hy+=2}
+  A.head={r,ty:hy};
+  const qb=ph(B); A.blink={sy:qb>.92&&qb<.97?.12:1};
+  {const q=ph(3.4),s=q>.64&&q<.8?Math.sin((q-.64)/.16*PI*3):0;A.roll={r:35*s,tx:3*s,ty:-Math.abs(s)*5}}
+  {const q=ph(2.8);if(q>.58){const s=Math.min(1,(q-.58)/.22);A.bounce={tx:-13*s,ty:-10*Math.sin(s*PI)*(1-s*.5),r:-180*s}}}
+  {const q=ph(6),s=q>.7&&q<.9?Math.sin((q-.7)/.2*PI):0;A.sip={ty:-14*s,r:-12*s}}
+  A.glow={op:.82+.18*Math.round(1+Math.sin(PI*tt*1.6))/2};
+  A.scribble={r:4*Math.sin(2*PI*tt/.7)};
+  A.float={ty:-1-4*Math.sin(PI*tt/2.4)};
+  A.pulse={op:.85+.15*Math.sin(PI*tt/2.2)};
+  A.tail={r:6.5*Math.sin(PI*tt/2.6)};
+  // main gauche : pianote quand le joueur est fâché, sinon bouge à peine
+  A.handL=p.mood==='fache'?{ty:-Math.abs(Math.sin(2*PI*tt*2.2))*2.4}:{ty:.6*Math.sin(PI*tt/2.3)};
+  A.handR={ty:.6*Math.sin(PI*tt/2.7+1)};
+  // cellulaire : le pouce glisse vers le haut, le fil défile
+  if(p.prop==='cell'){
+    const per=1.5,q=ph(per),n=Math.floor(tt/per);
+    const up=q<.25?ease(q/.25):q<.4?1-(q-.25)/.15:0;
+    A.thumb={ty:-9*up,tx:-1*up};
+    A.feed={ty:-(((n+(q<.25?ease(q/.25):1))*9)%27)};
+    A.phone={ty:1.2*Math.sin(PI*tt/1.3),r:-3};
+    A.handR={ty:1.2*Math.sin(PI*tt/1.3)};
+  }
+  // chips : la main pige dans le sac, monte à la bouche, redescend
+  if(p.prop==='chips'){
+    const q=ph(4.6), bag={x:100-geo.hxR,y:-8}, mouth={x:100-geo.hxR+4,y:(108+geo.dy)-208+6};
+    let x=0,y=0,chip=0;
+    if(q>=.3&&q<.42){const s=ease((q-.3)/.12);x=lerp(0,bag.x,s);y=lerp(0,bag.y,s)}
+    else if(q>=.42&&q<.62){const s=ease((q-.42)/.2);x=lerp(bag.x,mouth.x,s);y=lerp(bag.y,mouth.y,s);chip=1}
+    else if(q>=.62&&q<.72){x=mouth.x;y=mouth.y+Math.sin((q-.62)*80)*1.2;chip=q<.66?1:0}
+    else if(q>=.72&&q<.9){const s=ease((q-.72)/.18);x=lerp(mouth.x,0,s);y=lerp(mouth.y,0,s)}
+    A.handR={tx:x,ty:y,r:x?-10:0};A.chip={op:chip};
+  }
+  // pile de dés : six dés posés un à un, la tour vacille puis s'écroule
+  if(p.prop==='pile'){
+    const c=ph(8.4)*8.4;
+    for(let k=0;k<6;k++) A['die'+k]={op:(c>=k*.9+.45&&c<7.8)?1:0};
+    A.held={op:0};
+    if(c<5.4){
+      const j=Math.floor(c/.9),u=(c-j*.9)/.9;
+      const tx=STACK_X-geo.hxR+1,ty=(216-11*(j+1))-208+8;
+      const s=u<.5?ease(u/.5):1-ease((u-.5)/.5);
+      A.handR={tx:tx*s,ty:ty*s-8*Math.sin(s*PI),r:-8*s};
+      A.held={op:u<.5?1:0};
+    }
+    if(c>=5.4&&c<6.6){const s=(c-5.4)/1.2;A.stack={r:(1.5+5*s)*Math.sin((c-5.4)*16)}}
+    if(c>=6.6&&c<7.8){
+      const s=clamp((c-6.6)/.55);
+      for(let k=0;k<6;k++){const dir=k%2?1:-1;A['die'+k].tx=dir*(6+k*5)*s;A['die'+k].ty=11*k*s-6*Math.sin(s*PI);A['die'+k].r=dir*(80+k*20)*s}
+      A.stack={r:6*(1-s)};
+    }
+  }
+  return A;
+}
+
+function plaidDef(p,i,st){
+  const F=c=>st.sketch?mix(c,PAPER,.72):c;
+  const base=F(p.topColor), dk=F(mix(p.topColor,'#000000',.3)), lt=F(mix(p.topColor,'#ffffff',.45));
+  return `<pattern id="plaid${i}" width="18" height="18" patternUnits="userSpaceOnUse"><rect width="18" height="18" fill="${base}"/><rect width="7" height="18" fill="${dk}" opacity=".55"/><rect width="18" height="7" fill="${dk}" opacity=".55"/><rect x="12" width="1.5" height="18" fill="${lt}"/><rect y="12" width="18" height="1.5" fill="${lt}"/></pattern>`;
+}
+
+function curStyle(){const st=STYLES[state.style];return st.pixel?{...st,sw:(state.ps||3)*1.3}:st}
+function sceneSVG(t){
+  const st=curStyle(), n=state.n, W=n*215+10, H=360;
+  const F=c=>st.sketch?mix(c,PAPER,.72):c;
+  const sa=st.sw?` stroke="${st.stroke}" stroke-width="${st.sw}" stroke-linejoin="round"`:'';
+  const ln=(d,c,w=1)=>`<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`;
+  const ps=state.players.slice(0,n);
+  let defs=ps.map((p,i)=>plaidDef(p,i,st)).join('');
+  defs+=`<radialGradient id="glow" cx="50%" cy="10%" r="70%"><stop offset="0" stop-color="#ffe9b8" stop-opacity=".28"/><stop offset="1" stop-color="#ffe9b8" stop-opacity="0"/></radialGradient>`;
+  defs+=`<filter id="rough" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="3.2"/></filter>`;
+  const anims=ps.map((p,i)=>animFor(i,p,t==null?0.3:t,geoOf(p,st)));
+  const built=ps.map((p,i)=>buildPlayer(p,i,st,anims[i]));
+  const wall=st.sketch?PAPER:st.sw?'#2e3248':'#363a52';
+  let g='';
+  g+=`<rect width="${W}" height="${H}" fill="${wall}"/>`;
+  if(!st.sketch){for(let x=0;x<W;x+=46) g+=ln(`M${x},0 L${x},232`,mix(wall,'#000000',.12),2)}
+  if(!st.sketch) g+=`<rect width="${W}" height="${H}" fill="url(#glow)"/>`;
+  // étagère au mur et carte du monde
+  g+=`<rect x="${W*.04}" y="26" width="${W*.92}" height="6" fill="${F('#5a3924')}"${sa}/>`;
+  for(let k=0;k<n*5;k++){const x=W*.05+k*(W*.9/(n*5));const hh=14+((k*7)%9);g+=`<rect x="${x.toFixed(1)}" y="${26-hh}" width="${(W*.9/(n*5)*.7).toFixed(1)}" height="${hh}" fill="${F(['#7d2f3c','#2f6b4f','#c98a2b','#34466d','#6a3d8f'][k%5])}"${st.sw?` stroke="${st.stroke}" stroke-width="${st.sw*.5}"`:''}/>`}
+  const sx=i=>12+i*215;
+  for(let k=0;k<n-1;k++){const cx=sx(k)+207;g+=`<rect x="${cx-16}" y="52" width="32" height="40" rx="1" fill="${F('#d9c9a0')}"${sa}/>`+ln(`M${cx-10},62 Q${cx-2},58 ${cx+4},66 Q${cx+10},72 ${cx+8},84`,F('#8a6a3a'),1.4)+ln(`M${cx-12},78 L${cx-4},82`,F('#4b7258'),2)}
+  if(!st.sketch) g+=`<ellipse cx="${sx(state.sel)+100}" cy="150" rx="105" ry="120" fill="#ffffff" opacity=".07"/>`;
+  g+=built.map((b,i)=>`<g data-p="${i}" transform="translate(${sx(i)},${40+b.dy})"><g data-a="breath" data-o="0,0" transform="translate(0,${anims[i].breath.ty.toFixed(2)})">${b.back}</g></g>`).join('');
+  // table : grain du bois, tapis de jeu quadrillé, figurines
+  g+=`<path d="M0,232 L${W},232 L${W},268 L0,268Z" fill="${F('#8b5b3b')}"${sa}/>`;
+  for(let k=0;k<6;k++){const y=237+k*5;g+=ln(`M${(k*137)%60},${y} Q${W*.25},${y-1.5} ${W*.5},${y} T${W},${y}`,F('#7a4e31'),1)}
+  g+=`<path d="M${W*.3},236 L${W*.7},236 L${W*.72},264 L${W*.28},264Z" fill="${F('#5f8a6a')}"${sa}/>`;
+  for(let k=1;k<10;k++){const q=k/10;g+=ln(`M${W*(.3+.4*q)},236 L${W*(.28+.44*q)},264`,F('#4b7258'))}
+  g+=ln(`M${W*.29},250 L${W*.71},250`,F('#4b7258'));
+  const minis=[[.36,'#c23b3b'],[.42,'#3a6fc4'],[.47,'#e0a53a'],[.55,'#2f8f6e'],[.64,'#7a4fc2']];
+  minis.forEach(([fx,c],k)=>{const x=W*fx,y=246+(k%2)*8;g+=`<ellipse cx="${x}" cy="${y+6}" rx="5" ry="2" fill="${F('#2b2b33')}"/><path d="M${x-3},${y+6} L${x-2},${y-2} Q${x},${y-6} ${x+2},${y-2} L${x+3},${y+6}Z" fill="${F(c)}"${st.sw?` stroke="${st.stroke}" stroke-width="${st.sw*.4}"`:''}/>`});
+  {const x=W*.6,y=250;g+=`<path d="M${x-9},${y+8} Q${x-10},${y-4} ${x},${y-10} Q${x+6},${y-14} ${x+10},${y-8} L${x+5},${y-6} Q${x+8},${y} ${x+9},${y+8}Z" fill="${F('#7d2f3c')}"${st.sw?` stroke="${st.stroke}" stroke-width="${st.sw*.45}"`:''}/>`}
+  g+=`<rect x="0" y="268" width="${W}" height="${H-268}" fill="${F('#5a3924')}"${sa}/>`;
+  for(let x=60;x<W;x+=120) g+=ln(`M${x},270 L${x},${H}`,F('#4a2e1c'),1.4);
+  g+=ln(`M0,271 L${W},271`,F('#9b6a46'),2);
+  g+=built.map((b,i)=>`<g data-p="${i}" transform="translate(${sx(i)},40)">${b.front}</g>`).join('');
+  // paravent du MJ au premier plan
+  const pw=Math.min(W*.62,560), px=(W-pw)/2, seg=pw/3;
+  for(let k=0;k<3;k++){const x=px+k*seg, tilt=k===1?0:(k===0?-8:8);
+    g+=`<path d="M${x+(k===0?tilt:0)},300 L${x+seg+(k===2?tilt:0)},300 L${x+seg},${H+4} L${x},${H+4}Z" fill="${F(k===1?'#7d2f3c':'#6b2833')}"${sa}/>`;
+    g+=ln(`M${x+10},310 L${x+seg-10},310`,F('#d9a93a'),2)+ln(`M${x+14},${H-10} L${x+seg-14},${H-10}`,F('#d9a93a'),1.2);}
+  g+=`<circle cx="${W/2}" cy="334" r="11" fill="${F('#d9a93a')}"${sa}/><text x="${W/2}" y="338" font-size="10" font-family="sans-serif" font-weight="700" text-anchor="middle" fill="${F('#6b2833')}">20</text>`;
+  return {svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}"><defs>${defs}</defs><g${st.sketch?' filter="url(#rough)"':''}>${g}</g></svg>`,W,H};
+}
+
+const stage=document.getElementById('stage');
+// Moteur Pixel : rendu basse résolution, palette réduite, tramage Bayer, ~10 images/s
+const pix={raf:0,busy:false,pal:null,last:-1e9,canvas:null,off:null,plain:false};
+const BAYER=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
+function buildPalette(d){
+  const m=new Map();
+  for(let k=0;k<d.length;k+=4){const key=(d[k]>>3)<<10|(d[k+1]>>3)<<5|(d[k+2]>>3);let e=m.get(key);if(!e){e=[0,0,0,0];m.set(key,e)}e[0]+=d[k];e[1]+=d[k+1];e[2]+=d[k+2];e[3]++}
+  const arr=[...m.values()].sort((a,b)=>b[3]-a[3]),pal=[];
+  for(const e of arr){const c=[e[0]/e[3],e[1]/e[3],e[2]/e[3]];if(pal.every(q=>(q[0]-c[0])**2+(q[1]-c[1])**2+(q[2]-c[2])**2>260))pal.push(c);if(pal.length>=(state.ncol||48))break}
+  return pal;
+}
+const BAYER2=[0,2,3,1];
+function ditherAt(x,y){
+  switch(state.dtype){
+    case 'bayer2': return BAYER2[(y&1)*2+(x&1)]/4+.125-.5;
+    case 'lignes': return (y&1)?.25:-.25;
+    case 'bruit': return (((x*73856093)^(y*19349663))>>>0)%97/97-.5;
+    default: return BAYER[(y&3)*4+(x&3)]/16+.03125-.5;
+  }
+}
+function quantize(id,pal,w){
+  const d=id.data,cache=new Map(),amp=(state.dith??35)*.9;
+  for(let k=0,p=0;k<d.length;k+=4,p++){
+    const x=p%w,y=(p/w)|0,o=amp?ditherAt(x,y)*amp:0;
+    const r=Math.max(0,Math.min(255,d[k]+o)),g=Math.max(0,Math.min(255,d[k+1]+o)),b=Math.max(0,Math.min(255,d[k+2]+o));
+    const key=(r>>2)<<12|(g>>2)<<6|(b>>2);let c=cache.get(key);
+    if(!c){let best=1e9;for(const q of pal){const dd=(q[0]-r)**2+(q[1]-g)**2+(q[2]-b)**2;if(dd<best){best=dd;c=q}}cache.set(key,c)}
+    d[k]=c[0];d[k+1]=c[1];d[k+2]=c[2];d[k+3]=255;
+  }
+}
+function drawPixel(t){
+  if(pix.busy) return; pix.busy=true;
+  const {svg,W,H}=sceneSVG(t), s=state.ps||3, cw=Math.round(W/s), ch=Math.round(H/s);
+  const img=new Image();
+  img.onload=()=>{
+    const off=pix.off||(pix.off=document.createElement('canvas'));off.width=cw;off.height=ch;
+    const x=off.getContext('2d',{willReadFrequently:true});x.clearRect(0,0,cw,ch);x.drawImage(img,0,0,cw,ch);
+    const c=pix.canvas;c.width=cw;c.height=ch;const cx=c.getContext('2d');
+    if(!pix.plain){try{const id=x.getImageData(0,0,cw,ch);if(!pix.pal)pix.pal=buildPalette(id.data);quantize(id,pix.pal,cw);cx.putImageData(id,0,0)}catch(e){pix.plain=true}}
+    if(pix.plain){cx.imageSmoothingEnabled=false;cx.drawImage(off,0,0)}
+    pix.busy=false;
+  };
+  img.onerror=()=>{pix.busy=false};
+  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg.replace('<svg ',`<svg width="${cw}" height="${ch}" `));
+}
+function stopPixel(){cancelAnimationFrame(pix.raf);pix.raf=0}
+function startPixel(){
+  stopPixel();pix.pal=null;pix.last=-1e9;
+  pix.canvas=document.createElement('canvas');stage.innerHTML='';stage.appendChild(pix.canvas);
+  if(!state.anim){drawPixel(null);return}
+  const loop=now=>{if(now-pix.last>=100){pix.last=now;drawPixel(now/1000)}pix.raf=requestAnimationFrame(loop)};
+  pix.raf=requestAnimationFrame(loop);
+}
+function renderScene(){
+  const st=STYLES[state.style];
+  stage.style.background=st.sketch?PAPER:'#2e3248';
+  const ab=document.getElementById('animBtn');
+  ab.setAttribute('aria-pressed',!!state.anim);
+  ab.textContent=state.anim?'Animations : on':'Animations : off';
+  document.getElementById('pixRow').hidden=!st.pixel;
+  stopVector();
+  if(st.pixel){startPixel();return}
+  stopPixel();
+  stage.innerHTML=sceneSVG(null).svg;
+  startVector();
+}
+// Boucle vectorielle : met à jour les transforms des groupes animés (~30 images/s)
+const vec={raf:0,last:-1e9};
+function stopVector(){cancelAnimationFrame(vec.raf);vec.raf=0}
+function startVector(){
+  if(!state.anim) return;
+  const st=curStyle();
+  const groups=[...Array(state.n)].map((_,i)=>[...stage.querySelectorAll(`[data-p="${i}"] [data-a]`)].map(el=>{const o=el.dataset.o.split(',').map(Number);return {el,k:el.dataset.a,ox:o[0],oy:o[1]}}));
+  const geos=state.players.slice(0,state.n).map(p=>geoOf(p,st));
+  const loop=now=>{
+    if(now-vec.last>=33){vec.last=now;const t=now/1000;
+      groups.forEach((els,i)=>{const A=animFor(i,state.players[i],t,geos[i]);
+        for(const g of els){const a=A[g.k]||{};g.el.setAttribute('transform',trOf(a,g.ox,g.oy));g.el.setAttribute('opacity',a.op==null?1:a.op)}})}
+    vec.raf=requestAnimationFrame(loop)};
+  vec.raf=requestAnimationFrame(loop);
+}
+stage.addEventListener('click',e=>{
+  const r=stage.getBoundingClientRect(), W=state.n*215+10;
+  const x=(e.clientX-r.left)/r.width*W;
+  select(Math.max(0,Math.min(state.n-1,Math.floor((x-12)/215))));
+});
+
+function renderStyles(){
+  document.getElementById('styles').innerHTML=Object.entries(STYLES).map(([k,s])=>`<button data-style="${k}" aria-pressed="${state.style===k}">${s.label}</button>`).join('');
+}
+document.getElementById('styles').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;state.style=b.dataset.style;save();renderStyles();renderScene()});
+
+function renderSeats(){
+  document.getElementById('seats').innerHTML=state.players.slice(0,state.n).map((p,i)=>`<button data-seat="${i}" aria-pressed="${state.sel===i}"><b>${esc(p.name)}</b><span>${lab('race',p.race)} · ${p.cls==='aucune'?lab('top',p.top):lab('cls',p.cls).split(' · ')[0]}</span></button>`).join('');
+  document.getElementById('n').textContent=state.n;
+}
+document.getElementById('seats').addEventListener('click',e=>{const b=e.target.closest('button');if(b)select(+b.dataset.seat)});
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+const panel=document.getElementById('panel');
+function renderPanel(){
+  const p=state.players[state.sel];
+  let html=`<div class="who"><label for="pname">Joueur ${state.sel+1}</label><input id="pname" value="${esc(p.name)}" maxlength="18" autocomplete="off">
+    <div class="actions"><button class="btn primary" data-act="rand">Brasser ce joueur</button><button class="btn" data-act="randall">Brasser la table</button><button class="btn" data-act="copy">Copier le SVG</button></div>
+    <div class="toast" id="toast" aria-live="polite"></div></div>`;
+  html+=GROUPS.map(([title,k,sw])=>{
+    if(k==='skin') sw=skinsFor(p.race);
+    const items=sw?sw.map(c=>`<button data-k="${k}" data-v="${c}" aria-pressed="${p[k]===c}" aria-label="${title} ${c}" style="background:${c}"></button>`).join('')
+      :OPTS[k].map(([v,l])=>`<button data-k="${k}" data-v="${v}" aria-pressed="${p[k]===v}">${l}</button>`).join('');
+    return `<fieldset><legend>${title}</legend><div class="chips${sw?' sw':''}">${items}</div></fieldset>`;
+  }).join('');
+  panel.innerHTML=html;
+}
+panel.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  const p=state.players[state.sel];
+  if(b.dataset.k==='race'){p.race=b.dataset.v;if(!skinsFor(p.race).includes(p.skin))p.skin=skinsFor(p.race)[0];refresh();return}
+  if(b.dataset.k){p[b.dataset.k]=b.dataset.v;b.parentElement.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));save();renderScene();renderSeats();return}
+  const a=b.dataset.act;
+  if(a==='rand'){state.players[state.sel]=randomPlayer(p.name);refresh()}
+  if(a==='randall'){state.players=state.players.map(q=>randomPlayer(q.name));refresh()}
+  if(a==='copy'){
+    const st=STYLES[state.style]; const {back,front}=buildPlayer(p,0,st,animFor(0,p,.3,geoOf(p,st)));
+    const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="40 -40 120 280" width="240" height="560"><defs>${plaidDef(p,0,st)}</defs>${back}${front}</svg>`.replace('viewBox="40 -40 120 280"','viewBox="20 -40 160 280"');
+    const t=document.getElementById('toast');
+    const done=()=>{t.textContent='SVG copié. Colle-le dans un fichier .svg pour Godot.'};
+    try{navigator.clipboard.writeText(svg).then(done,()=>{t.textContent='Copie bloquée ici. Le SVG est dans la console.';console.log(svg)})}catch(err){t.textContent='Copie bloquée ici. Le SVG est dans la console.';console.log(svg)}
+  }
+});
+panel.addEventListener('input',e=>{if(e.target.id==='pname'){state.players[state.sel].name=e.target.value||'Joueur';save();renderSeats()}});
+
+function select(i){state.sel=i;save();renderSeats();renderPanel();renderScene()}
+function refresh(){save();renderSeats();renderPanel();renderScene()}
+document.getElementById('minus').onclick=()=>{if(state.n>2){state.n--;if(state.sel>=state.n)state.sel=state.n-1;refresh()}};
+document.getElementById('plus').onclick=()=>{if(state.n<5){state.n++;if(!state.players[state.n-1])state.players.push(randomPlayer(NAMES[state.n-1]));refresh()}};
+
+function bindRange(id,key,def,restart){const el=document.getElementById(id),out=document.getElementById(id+'V');el.value=state[key]??def;if(out)out.textContent=el.value;
+  el.addEventListener('input',()=>{state[key]=+el.value;if(out)out.textContent=el.value;save();if(restart)renderScene()})}
+bindRange('pxs','ps',3,true);bindRange('ncol','ncol',48,true);bindRange('dith','dith',35,false);
+const dtype=document.getElementById('dtype');dtype.value=state.dtype||'bayer4';
+dtype.addEventListener('change',()=>{state.dtype=dtype.value;save();if(!state.anim)renderScene()});
+document.getElementById('dith').addEventListener('change',()=>{if(!state.anim)renderScene()});
+document.getElementById('animBtn').onclick=()=>{state.anim=!state.anim;save();renderScene()};
+renderStyles();refresh();
+</script>

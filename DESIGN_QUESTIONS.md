@@ -91,3 +91,15 @@ Still open:
 46. **Recruit cards are still cards**, not an LFG-style list. Class and archetype blurbs moved to the card tooltip to make room for the portrait and the quirk.
 47. **Weapons are item sprites placed by script**, not inpainted: the model would not draw a weapon in the doll's hand. `tools/art/px_extras.py` generates each weapon alone, then scales it and puts its grip on the hand. Weapons and accessories keep their own colours (no tint) and are reduced to a 10-colour palette.
 48. **Every character carries the weapon of its class**; the accessory layer stays empty half of the time (`optional_layer_empty_chance`). One accessory at most, so no glasses under a hat.
+
+## Table player art (procedural port of reference/table-des-joueurs.html)
+
+49. **Two character art systems coexist for now.** The sprite paper doll (items 38-48) is what the game screens use. The procedural `TablePlayer` (`ui/table_player/`) is a port of Rich's HTML lab and only shows in `ui/dev/table_player_demo.tscn`. Rich picks which one the seats and recruit cards use; nothing in `core/` or the generator changed.
+50. **`PlayerAppearance` uses the HTML's French ids** (`guerrier`, `nain`, `carreaux`...) and 15 raw fields, not the `CharacterAppearance` part ids. Mapping the game's classes and races onto them (Tank = guerrier, Healer = clerc, DPS = roublard or rodeur, CC = magicien or barde) is left to the integration step.
+51. **`randomize()` is `randomize_with(rng)`**: it takes the run's seeded `RandomNumberGenerator` as CLAUDE.md requires, and the bare name would shadow the global `randomize()`.
+52. **SVG path strings are kept verbatim.** `SvgPath` flattens M/L/Q/Z into polygons and `TablePlayerBuilder` evaluates `{expr}` slots (JS `${expr}`) with Godot's `Expression`, so a shape fixed in the HTML can be re-copied. Cost: a few hundred small expression evaluations per player build, cached by expression text.
+53. **Strokes are mitred polylines**, not SVG's round joins; at 3.2 px they read the same except on the sharpest hair spikes.
+54. **Drakeide horns have no fill**, only an outline: the two curves are too thin to triangulate.
+55. **Pixel mode is a node, `PixelTable`**: a SubViewport at 1/pixel_size of the scene (`size_2d_override` keeps scene units), shown nearest-filtered through `ui/shaders/pixel_dither.gdshader`. The palette is sampled once from the scene (most frequent colours, 260 apart), as in the reference, so a colour that only appears later (a chip, a thrown die) snaps to its nearest palette entry. `rebuild_palette()` resamples.
+56. **Pixel renders at 10 fps** (`fps`, 0 = every frame), like the reference; poses still update every frame underneath.
+57. **Strokes are thicker in Pixel mode** (`stroke_mult` = pixel size x 1.3 / 3.2), otherwise the ink line dissolves in the dithering.

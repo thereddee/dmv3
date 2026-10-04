@@ -196,6 +196,14 @@ Body ×2, faces ×4, race traits ×5, hairstyles ×6 (back + front = 12), outfit
 2. Drop it in `assets/characters/<layer>/` and add a `.tres` entry; the generator picks it up with no code change.
 3. Until real art exists, placeholder layers are flat shapes; the pipeline must work with them from Milestone 2 on.
 
+## Player art reference
+
+- `reference/table-des-joueurs.html` is the source of truth for the table players' look and idle animations (read-only, like `prototype/`).
+- Characters are layered: back items, back hair, torso + top, class costume, horns/tail, head (race ears/nose), facial hair, face, front hair, glasses, hat, then hands + table prop.
+- All idle poses come from one time-based function (animFor). Port it as a pure GDScript function, not as baked keyframes.
+- Target looks: BD cel-shading (bold outlines, flat colours, one shade tone) and Pixel mode (low-res render, limited palette, ordered dithering).
+- Port lives in `ui/table_player/` (procedural `_draw()` layers, SVG path strings kept verbatim) with `PlayerAppearance` in `data/`. It coexists with the sprite paper doll above until Rich picks one (see `DESIGN_QUESTIONS.md`).
+
 ## Milestones
 
 1. **Core engine + sim.** Port `prototype/battler.html` rules into `core/` with Resources for all content. `sim/run_sim.gd` plays N campaigns with three bots: **random**, **greedy-safe** (always targets the tank, never arms specials, flees at any death risk) and **greedy-risky** (max budget, targets lowest HP, arms everything). Print per bot: TPK rate, median final score, satisfaction per player, encounters skipped at midnight. **Red flags to report first:** a bot that never TPKs (red line unreachable), or greedy-safe scoring within 15% of greedy-risky (risk not rewarded).
