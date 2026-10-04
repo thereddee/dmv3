@@ -11,4 +11,5 @@ satisfaction_malus = 6
 blurb = "Attire les coups. Veut en prendre plus que les autres."
 hp = 32
 atk = 4
+table_classes = Array[String](["guerrier"])
 accent_colours = Array[Color]([Color(0.686, 0.725, 0.784, 1), Color(0.353, 0.471, 0.784, 1), Color(0.784, 0.667, 0.353, 1)])

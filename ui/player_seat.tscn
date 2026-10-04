@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://ui/player_seat.gd" id="1"]
-[ext_resource type="PackedScene" path="res://ui/character_portrait.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://ui/table_player_portrait.tscn" id="2"]
 
 [node name="PlayerSeat" type="PanelContainer"]
 custom_minimum_size = Vector2(190, 0)

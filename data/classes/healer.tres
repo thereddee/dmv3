@@ -11,4 +11,5 @@ satisfaction_malus = 8
 blurb = "Soigne l'allié le plus mal en point. Veut être utile."
 hp = 20
 atk = 3
+table_classes = Array[String](["clerc"])
 accent_colours = Array[Color]([Color(0.922, 0.882, 0.784, 1), Color(0.471, 0.706, 0.863, 1), Color(0.863, 0.745, 0.431, 1)])

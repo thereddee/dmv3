@@ -16,3 +16,5 @@ extends Resource
 @export var quirk: String = ""
 ## Null for the fixed v0 party: the seat then shows no portrait.
 @export var appearance: CharacterAppearance
+## Procedural look shown on the seats (ui/table_player). Null for the fixed v0 party.
+@export var table_look: PlayerAppearance

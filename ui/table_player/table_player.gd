@@ -34,6 +34,14 @@ func apply(new_appearance: PlayerAppearance) -> void:
 	groups = builder.groups
 	geo = builder.geo
 
+## For UI (no z_index games, which would draw over neighbouring controls): puts 	able between
+## Back and Front in the tree and drops Front's z_index. Call after the node is ready.
+func insert_table(table: Node2D) -> void:
+	add_child(table)
+	move_child(table, _front.get_index())
+	_front.z_index = 0
+
+
 func _process(_delta: float) -> void:
 	if animate and appearance != null:
 		apply_pose(TablePlayerPose.pose_at(seat, appearance, Time.get_ticks_msec() / 1000.0, geo))

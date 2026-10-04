@@ -6,6 +6,7 @@
 script = ExtResource("1")
 key = "human"
 display_name = "Humain"
+table_race = "humain"
 scale = 1.0
 skin_tones = Array[Color]([Color(0.957, 0.816, 0.706, 1), Color(0.843, 0.647, 0.490, 1), Color(0.627, 0.431, 0.306, 1), Color(0.431, 0.294, 0.216, 1)])
 hair_colours = Array[Color]([Color(0.314, 0.235, 0.196, 1), Color(0.510, 0.333, 0.196, 1), Color(0.804, 0.294, 0.196, 1), Color(0.941, 0.804, 0.431, 1), Color(0.235, 0.216, 0.255, 1)])

@@ -11,4 +11,5 @@ satisfaction_malus = 6
 blurb = "Frappe fort, encaisse mal. Veut le plus gros chiffre."
 hp = 18
 atk = 8
+table_classes = Array[String](["roublard", "rodeur"])
 accent_colours = Array[Color]([Color(0.647, 0.451, 0.275, 1), Color(0.373, 0.549, 0.353, 1), Color(0.706, 0.294, 0.275, 1)])

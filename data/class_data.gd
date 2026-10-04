@@ -11,6 +11,8 @@ extends Resource
 @export var stun_chance: float = 0.5
 ## Outfit tints a generated player of this class can roll.
 @export var accent_colours: Array[Color] = []
+## PlayerAppearance class ids a player of this class can be drawn as.
+@export var table_classes: Array[String] = []
 ## Satisfaction gained / lost at encounter end when the class hook is met / missed.
 @export var satisfaction_bonus: int = 0
 @export var satisfaction_malus: int = 0

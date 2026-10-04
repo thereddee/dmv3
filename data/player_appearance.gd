@@ -65,11 +65,15 @@ static func skins_for(race_id: String) -> Array:
 
 
 ## Same distribution as randomPlayer() in the reference. Named randomize_with because Resource
-## would shadow the global randomize().
-func randomize_with(rng: RandomNumberGenerator) -> void:
+## would shadow the global randomize(). A non-empty ace_id / class_id replaces that roll, and\n## everything that depends on it (skin tones, dwarf beards) follows.
+func randomize_with(rng: RandomNumberGenerator, race_id: String = "", class_id: String = "") -> void:
 	hair = _pick(rng, ["court", "court", "long", "long", "chignon", "queue", "boucles", "rase", "crete", "chauve"])
 	race = _pick(rng, ["humain", "humain", "elfe", "nain", "halfelin", "gnome", "orc", "tieffelin", "drakeide"])
 	cls = _pick(rng, CLASSES.slice(1))
+	if race_id != "":
+		race = race_id
+	if class_id != "":
+		cls = class_id
 	eyes = _pick(rng, EYE_COLORS)
 	build = _pick(rng, ["mince", "moyen", "moyen", "large"])
 	skin = _pick(rng, skins_for(race))

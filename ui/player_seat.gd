@@ -6,6 +6,8 @@ extends PanelContainer
 signal pressed(player: PlayerState)
 
 const BAR_TIME := 0.25
+## Display scale of the table-player portrait (figure units to pixels).
+const PORTRAIT_SCALE := 0.42
 
 var player: PlayerState
 var _shown_hp := 0
@@ -21,7 +23,7 @@ var _archetype_name := ""
 @onready var _hp_bar: ProgressBar = $Margin/Row/VBox/HpBar
 @onready var _sat_label: Label = $Margin/Row/VBox/SatLabel
 @onready var _sat_bar: ProgressBar = $Margin/Row/VBox/SatBar
-@onready var _portrait: CharacterPortrait = $Margin/Row/Portrait
+@onready var _portrait: TablePlayerPortrait = $Margin/Row/Portrait
 
 
 func _ready() -> void:
@@ -38,7 +40,7 @@ func setup(p: PlayerState, content: ContentDB) -> void:
 	_class_name = content.classes[p.class_key].display_name
 	_archetype_name = content.archetypes[p.archetype_key].display_name
 	_sat_bar.max_value = content.tuning.max_satisfaction
-	_portrait.setup(p.data.appearance, content)
+	_portrait.setup(p.data.table_look, p.data.seat, PORTRAIT_SCALE)
 	tooltip_text = p.data.quirk
 	_class_label.add_theme_color_override("font_color", Palette.CLASS_COLORS.get(p.class_key, Palette.MUTED))
 

@@ -46,7 +46,18 @@ static func generate(rng: RandomNumberGenerator, content: ContentDB, taken_names
 			var part: CharacterPart = _pick(rng, pool)
 			look.parts[layer] = part.id
 	d.appearance = look
+	d.table_look = _table_look(d, race, cls)
 	return d
+
+
+## Drawn from an rng seeded by the character itself, so the run's rng sequence is unchanged.
+static func _table_look(d: PlayerData, race: RaceData, cls: ClassData) -> PlayerAppearance:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = ("%s|%s|%s|%s" % [d.display_name, d.race_key, d.class_key, d.archetype_key]).hash()
+	var look := PlayerAppearance.new()
+	var class_id: String = _pick(rng, cls.table_classes) if not cls.table_classes.is_empty() else ""
+	look.randomize_with(rng, race.table_race, class_id)
+	return look
 
 
 static func _pick(rng: RandomNumberGenerator, from: Array) -> Variant:

@@ -10,7 +10,9 @@ signal playback_finished
 
 const SEAT_SCENE := preload("res://ui/player_seat.tscn")
 const MONSTER_SCENE := preload("res://ui/monster_card.tscn")
-const PORTRAIT_SCENE := preload("res://ui/character_portrait.tscn")
+const PORTRAIT_SCENE := preload("res://ui/table_player_portrait.tscn")
+## Recruit cards show the portrait at this scale (figure units to pixels).
+const RECRUIT_PORTRAIT_SCALE := 0.78
 const RECRUIT_CARD_SIZE := Vector2(286, 204)
 const RECRUIT_PORTRAIT_PAD := 140
 enum OverlayMode { SUMMARY, CAMPAIGN_OVER, MENU }
@@ -352,11 +354,11 @@ func _open_recruit() -> void:
 		var arch: ArchetypeData = campaign.content.archetypes[d.archetype_key]
 		var card := _choice.card(i)
 		card.tooltip_text = Strings.UI_RECRUIT_TIP % [cls.display_name, cls.blurb, arch.display_name, arch.blurb]
-		var portrait: CharacterPortrait = PORTRAIT_SCENE.instantiate()
+		var portrait: TablePlayerPortrait = PORTRAIT_SCENE.instantiate()
 		card.add_child(portrait)
-		portrait.setup(d.appearance, campaign.content, 1.0)
+		portrait.setup(d.table_look, i, RECRUIT_PORTRAIT_SCALE)
 		portrait.position = Vector2(6, 6)
-		portrait.size = CharacterSprite.CANVAS
+		portrait.size = TablePlayerPortrait.VIEW.size * RECRUIT_PORTRAIT_SCALE
 	_choice.set_info(Strings.UI_RECRUIT_INFO)
 	_on_choice_changed()
 
