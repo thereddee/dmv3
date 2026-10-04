@@ -82,10 +82,12 @@ Still open:
 
 38. **Parts are referenced by id, not by index.** `CharacterAppearance.parts` maps each layer to a `CharacterPart.id` ("" = empty layer), so adding or removing a drawing never shifts existing characters. CLAUDE.md said "an index per layer".
 39. **Catalogue.** A drawing is a PNG in `assets/characters/<layer>/` plus a `CharacterPart` in `data/character_parts/` (layer, texture, optional class, race and body types). `PlayerGenerator` picks among the parts that fit; an empty pool leaves the layer empty.
-40. **What exists in pixel art (first pass, generated with ComfyUI / Z-Image Turbo):** 1 body, 2 faces, 3 hairstyles (`hair_front` only), 4 outfits (one per class). No `hair_back`, back item, race traits, facial hair, accessory or weapon yet: those layers are wired and stay empty.
+40. **What exists in pixel art (generated with ComfyUI / Z-Image Turbo):** 1 body, 2 faces, 3 hairstyles (`hair_front` only), 4 outfits and 4 weapons (one per class), 4 accessories (glasses, scarf, wizard hat, circlet), 3 race traits (elf ears, orc ears and tusks, dwarf nose). Still empty: `hair_back`, back item, facial hair. Humans and halflings have no race trait (the halfling feet came out unusable).
 41. **One body for both body types.** Body type A/B only changes the name list and the hairstyle pool (spiky = A, long = B, short = both). A second body would need its own outfits.
-42. **Race is palette and scale only** (`data/races/*.tres`): skin tones, hair colours, sprite scale. No race drawing yet, so an elf has no pointed ears.
+42. **Race is cosmetic** (`data/races/*.tres`): skin tones, hair colours, sprite scale, plus a `race_traits` drawing for elves, orcs and dwarves. The trait is tinted with the skin, so orc tusks are green.
 43. **Accent colour comes from the class** (`ClassData.accent_colours`), not the race.
 44. **Generation moved to `core/player_generator.gd`.** It takes the content and a list of names already taken, on top of the `rng` named in CLAUDE.md. Names live in `data/names.tres`, quirks in `data/quirks.tres`.
 45. **Portraits.** Seats show the character at half size (64×96), recruit cards at full size (128×192). The fixed v0 party has no appearance and shows no portrait. A rerolled character keeps the look of the dead one.
 46. **Recruit cards are still cards**, not an LFG-style list. Class and archetype blurbs moved to the card tooltip to make room for the portrait and the quirk.
+47. **Weapons are item sprites placed by script**, not inpainted: the model would not draw a weapon in the doll's hand. `tools/art/px_extras.py` generates each weapon alone, then scales it and puts its grip on the hand. Weapons and accessories keep their own colours (no tint) and are reduced to a 10-colour palette.
+48. **Every character carries the weapon of its class**; the accessory layer stays empty half of the time (`optional_layer_empty_chance`). One accessory at most, so no glasses under a hat.

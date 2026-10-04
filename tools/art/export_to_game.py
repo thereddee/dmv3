@@ -21,11 +21,26 @@ PARTS = [
     ("outfit_tabard", "outfit_tabard", "outfit", "healer", "", []),
     ("outfit_leather", "outfit_leather", "outfit", "dps", "", []),
     ("outfit_robe", "outfit_robe", "outfit", "cc", "", []),
+    ("extras/weapon_sword", "weapon_sword", "weapon", "tank", "", []),
+    ("extras/weapon_mace", "weapon_mace", "weapon", "healer", "", []),
+    ("extras/weapon_bow", "weapon_bow", "weapon", "dps", "", []),
+    ("extras/weapon_staff", "weapon_staff", "weapon", "cc", "", []),
+    ("extras/acc_glasses", "acc_glasses", "accessory", "", "", []),
+    ("extras/acc_scarf", "acc_scarf", "accessory", "", "", []),
+    ("extras/acc_hat", "acc_hat", "accessory", "", "", []),
+    ("extras/acc_circlet", "acc_circlet", "accessory", "", "", []),
+    ("extras/race_elf", "race_elf", "race_traits", "", "elf", []),
+    ("extras/race_orc", "race_orc", "race_traits", "", "orc", []),
+    ("extras/race_dwarf", "race_dwarf", "race_traits", "", "dwarf", []),
 ]
 for source, part_id, layer, class_key, race_key, body_types in PARTS:
     asset_dir = os.path.join(project, "assets", "characters", layer)
     os.makedirs(asset_dir, exist_ok=True)
-    shutil.copyfile(os.path.join(SOURCE, source + ".png"), os.path.join(asset_dir, part_id + ".png"))
+    if source.startswith("extras/"):
+        source_path = os.path.join(HERE, "px", "extras_128x192", source.split("/", 1)[1] + ".png")
+    else:
+        source_path = os.path.join(SOURCE, source + ".png")
+    shutil.copyfile(source_path, os.path.join(asset_dir, part_id + ".png"))
     lines = [
         '[gd_resource type="Resource" script_class="CharacterPart" format=3]',
         '',
