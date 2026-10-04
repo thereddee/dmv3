@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="QuirkList" format=3]
+
+[ext_resource type="Script" path="res://data/quirk_list.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quirks = Array[String](["apporte toujours ses propres dés", "connaît le PHB par cœur, pas les règles de la table", "arrive toujours vingt minutes en retard", "prend des notes dans un vrai carnet en cuir", "nomme chacun de ses dés", "apporte des chips pour tout le monde", "demande s'il peut flatter chaque animal", "a un backstory de huit pages que personne n'a lu", "fait la voix de son perso, tout le temps", "calcule ses dégâts sur son cell", "veut fouiller chaque pièce au complet", "dessine son perso pendant les combats", "cite le même film à chaque séance", "roule ses dés avant que ce soit son tour"])

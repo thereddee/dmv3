@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="NameList" format=3]
+
+[ext_resource type="Script" path="res://data/name_list.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+names_a = Array[String](["Max", "Kevin", "Mathieu", "Phil", "Alex", "Simon", "Gab", "Fred", "Oli", "Marc-André", "Yan", "Seb"])
+names_b = Array[String](["Sophie", "Jess", "Véro", "Marie-Ève", "Cath", "Steph", "Mélanie", "Audrey", "Kim", "Noémie", "Val", "Roxanne"])

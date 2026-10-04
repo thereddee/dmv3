@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="RaceData" format=3]
+
+[ext_resource type="Script" path="res://data/race_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+key = "halfling"
+display_name = "Halfelin"
+scale = 0.8
+skin_tones = Array[Color]([Color(0.961, 0.824, 0.706, 1), Color(0.863, 0.686, 0.529, 1), Color(0.686, 0.490, 0.353, 1)])
+hair_colours = Array[Color]([Color(0.549, 0.373, 0.216, 1), Color(0.784, 0.588, 0.314, 1), Color(0.353, 0.255, 0.196, 1)])

@@ -35,7 +35,8 @@ static func panel(border: Color = BORDER, width: int = 1, bg: Color = PANEL) -> 
 
 
 ## Flat button look. `primary` fills it with the accent colour.
-static func style_button(button: Button, primary: bool = false, selected: bool = false) -> void:
+## `left_pad` leaves room on the left for something drawn over the button.
+static func style_button(button: Button, primary: bool = false, selected: bool = false, left_pad: int = 8) -> void:
 	var base := ACCENT.darkened(0.35) if primary else PANEL
 	var edge := ACCENT if primary or selected else BORDER
 	var states := {
@@ -49,6 +50,7 @@ static func style_button(button: Button, primary: bool = false, selected: bool =
 	for state: String in states:
 		var box: StyleBox = states[state]
 		box.set_content_margin_all(8)
+		box.content_margin_left = left_pad
 		button.add_theme_stylebox_override(state, box)
 	button.add_theme_color_override("font_disabled_color", MUTED.darkened(0.3))
 

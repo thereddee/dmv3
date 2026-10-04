@@ -12,6 +12,10 @@ var loot: Array[LootData] = []
 var party: Array[PlayerData] = []
 var classes: Dictionary[String, ClassData] = {}
 var archetypes: Dictionary[String, ArchetypeData] = {}
+var races: Array[RaceData] = []
+var parts: Array[CharacterPart] = []
+var names: NameList
+var quirks: QuirkList
 
 
 static func load_default() -> ContentDB:
@@ -30,6 +34,10 @@ static func load_default() -> ContentDB:
 	for res in _load_dir(ROOT + "archetypes"):
 		var arch: ArchetypeData = res
 		db.archetypes[arch.key] = arch
+	db.races.assign(_load_dir(ROOT + "races"))
+	db.parts.assign(_load_dir(ROOT + "character_parts"))
+	db.names = load(ROOT + "names.tres")
+	db.quirks = load(ROOT + "quirks.tres")
 	return db
 
 
@@ -41,15 +49,29 @@ func monster_by_id(id: String) -> MonsterData:
 	return null
 
 
+func part_by_id(id: String) -> CharacterPart:
+	for part in parts:
+		if part.id == id:
+			return part
+	return null
+
+
+func race_by_key(key: String) -> RaceData:
+	for race in races:
+		if race.key == key:
+			return race
+	return null
+
+
 ## Sorted by file name so content order (and thus seeded runs) is stable.
 static func _load_dir(path: String) -> Array[Resource]:
-	var names: Array[String] = []
+	var file_names: Array[String] = []
 	for f in DirAccess.get_files_at(path):
 		var file := f.trim_suffix(".remap")
-		if file.ends_with(".tres") and not names.has(file):
-			names.append(file)
-	names.sort()
+		if file.ends_with(".tres") and not file_names.has(file):
+			file_names.append(file)
+	file_names.sort()
 	var out: Array[Resource] = []
-	for file in names:
+	for file in file_names:
 		out.append(load(path + "/" + file))
 	return out

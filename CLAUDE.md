@@ -159,6 +159,43 @@ Off-class gift: half satisfaction, stats still apply. Every other living player 
 ### Score
 `power = atk × 2 + max_hp / 5`. **Final score = Σ power × satisfaction** over living players.
 
+## Character generation and asset pipeline
+
+The party is generated per campaign. A player is **data + appearance + table flavour**, and each part is built so adding content means adding files, not code.
+
+### Generation
+- `PlayerGenerator.generate(rng) -> PlayerData` picks: race, class, archetype, body type (A/B), appearance (see below), a name from `data/names.tres` (per body type), and a one-line **table quirk** from `data/quirks.tres` ("apporte toujours ses propres dés", "connaît le PHB par cœur, pas les règles de la table"). The quirk is flavour only in v0; it may become a status later.
+- A party is 4 of 6 generated candidates, shown in an LFG-style list the DM picks from (Milestone 5). Class coverage is **not** enforced: a party with no healer is a valid, harder run.
+- Race is **cosmetic in v0** (appearance only). Any future race mechanic goes through a keyed behaviour string, like monsters.
+
+### Appearance: layered paper doll
+One `CharacterAppearance` Resource holds an index per layer plus three tint colours. `CharacterSprite.tscn` is a stack of `Sprite2D` nodes in fixed order; `apply(appearance)` assigns textures and `modulate`. All layer textures share **one canvas size and one anchor** (start at 128×192, feet at the bottom centre), so no per-layer offsets exist anywhere in code.
+
+| # | Layer | Varies by | Tint |
+|---|---|---|---|
+| 1 | `hair_back` | hairstyle | hair |
+| 2 | `back_item` | class (cape, staff) | accent |
+| 3 | `body` | body type | skin |
+| 4 | `race_traits` | race (ears, tusks, hairy feet) | skin |
+| 5 | `face` | face variant | — |
+| 6 | `outfit` | class | accent |
+| 7 | `facial_hair` | optional | hair |
+| 8 | `hair_front` | hairstyle | hair |
+| 9 | `accessory` | optional | — |
+| 10 | `weapon` | class | — |
+
+- **Tint, don't draw.** Skin, hair and accent colours are `modulate` on greyscale art. One drawing, any colour. Palettes per race live in `data/races/*.tres`. If a layer needs two colours, use the small palette-swap shader in `ui/shaders/`, not a second drawing.
+- **One silhouette for everyone in v0.** Race size is a uniform `scale` on the whole stack (halfling 0.8, dwarf 0.85, orc 1.1). Separate silhouettes per race are out of scope until the art budget below is done and the game is fun.
+- **Body type A/B** changes the body texture and the hairstyle pool. Outfits are shared by both.
+
+### Art budget v1 (≈45 drawings)
+Body ×2, faces ×4, race traits ×5, hairstyles ×6 (back + front = 12), outfits ×4, weapons ×4, accessories ×6, facial hair ×2. Style: clean black outlines, cel-shaded, flat colours, limited palette; outlines hide seams between layers. Draw hair first (most variety per drawing), outfits last.
+
+### Workflow for new art
+1. Draw over the locked body template (`art/template.kra`), export each piece as its own PNG at the shared canvas size, greyscale where tinted.
+2. Drop it in `assets/characters/<layer>/` and add a `.tres` entry; the generator picks it up with no code change.
+3. Until real art exists, placeholder layers are flat shapes; the pipeline must work with them from Milestone 2 on.
+
 ## Milestones
 
 1. **Core engine + sim.** Port `prototype/battler.html` rules into `core/` with Resources for all content. `sim/run_sim.gd` plays N campaigns with three bots: **random**, **greedy-safe** (always targets the tank, never arms specials, flees at any death risk) and **greedy-risky** (max budget, targets lowest HP, arms everything). Print per bot: TPK rate, median final score, satisfaction per player, encounters skipped at midnight. **Red flags to report first:** a bot that never TPKs (red line unreachable), or greedy-safe scoring within 15% of greedy-risky (risk not rewarded).

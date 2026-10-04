@@ -24,6 +24,8 @@ extends Resource
 ## Candidates generated at campaign start; 0 uses the fixed party in data/party.
 @export var party_candidates: int = 6
 @export var party_size: int = 4
+## Chance an optional appearance layer (accessory, facial hair, back item) stays empty.
+@export var optional_layer_empty_chance: float = 0.5
 @export var start_satisfaction: int = 50
 @export var max_satisfaction: int = 100
 @export var damage_die: int = 3

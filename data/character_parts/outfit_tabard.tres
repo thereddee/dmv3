@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CharacterPart" format=3]
+
+[ext_resource type="Script" path="res://data/character_part.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/characters/outfit/outfit_tabard.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "outfit_tabard"
+layer = "outfit"
+texture = ExtResource("2")
+class_key = "healer"

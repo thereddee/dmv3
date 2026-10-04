@@ -4,8 +4,6 @@ extends RefCounted
 
 const RECRUIT_START := "Six personnes veulent jouer. Tu as quatre chaises."
 const RECRUITED := "À la table : %s."
-const PLAYER_NAMES: Array[String] = ["Max", "Kevin", "Sophie", "Mathieu", "Jess", "Phil", "Véro", "Alex",
-	"Marie-Ève", "Simon", "Gab", "Cath", "Fred", "Steph", "Oli", "Mélanie"]
 const NIGHT_START := "Soirée %d. Tu prépares tes notes. Choisis %d monstres pour la soirée."
 const STATUS := {
 	"phone": "%s scrolle sur son cell.",
@@ -89,7 +87,7 @@ const UI_ERR_DEAD_MONSTER := "Il est mort."
 const UI_ERR_SPECIAL_USED := "Capacité déjà utilisée."
 const UI_ERR_ONE_CARD := "Une seule carte de DM par tour."
 
-const UI_SEAT_LINE := "%s · %s · ATK %d"
+const UI_SEAT_LINE := "%s · ATK %d\n%s"
 const UI_HP := "HP %d/%d"
 const UI_SAT := "Satisfaction %d"
 const UI_MONSTER_ATK := "ATK %d · coût %d"
@@ -170,9 +168,10 @@ const UI_SCORE_DEAD := "%s † — mort, ne compte pas"
 const UI_SCORE_TOTAL := "Score final : %d · %d survivants · seed %d"
 
 const UI_RECRUIT_TITLE := "Ta table · choisis %d joueurs (%d/%d)"
-const UI_RECRUIT_INFO := "Classe : ce qu'il fait en combat. Archétype : ce qui le rend heureux."
+const UI_RECRUIT_INFO := "Classe : ce qu'il fait en combat. Archétype : ce qui le rend heureux. Survole une fiche pour le détail."
 const UI_RECRUIT_CONFIRM := "On commence"
-const UI_RECRUIT_CARD := "%s\n%s · HP %d · ATK %d\n%s\n%s\n%s"
+const UI_RECRUIT_CARD := "%s · %s\n%s\nHP %d · ATK %d\n%s\n« %s »"
+const UI_RECRUIT_TIP := "%s : %s\n%s : %s"
 const UI_ERR_RECRUIT_COUNT := "Il te faut exactement %d joueurs."
 
 # ===== Campaign recap (a player's forum post about their DM) =====

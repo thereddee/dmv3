@@ -13,14 +13,15 @@ var _shown_sat := 0
 var _class_name := ""
 var _archetype_name := ""
 
-@onready var _name_label: Label = $Margin/VBox/Header/NameLabel
-@onready var _target_label: Label = $Margin/VBox/Header/TargetLabel
-@onready var _class_label: Label = $Margin/VBox/ClassLabel
-@onready var _status_label: Label = $Margin/VBox/StatusLabel
-@onready var _hp_label: Label = $Margin/VBox/HpLabel
-@onready var _hp_bar: ProgressBar = $Margin/VBox/HpBar
-@onready var _sat_label: Label = $Margin/VBox/SatLabel
-@onready var _sat_bar: ProgressBar = $Margin/VBox/SatBar
+@onready var _name_label: Label = $Margin/Row/VBox/Header/NameLabel
+@onready var _target_label: Label = $Margin/Row/VBox/Header/TargetLabel
+@onready var _class_label: Label = $Margin/Row/VBox/ClassLabel
+@onready var _status_label: Label = $Margin/Row/VBox/StatusLabel
+@onready var _hp_label: Label = $Margin/Row/VBox/HpLabel
+@onready var _hp_bar: ProgressBar = $Margin/Row/VBox/HpBar
+@onready var _sat_label: Label = $Margin/Row/VBox/SatLabel
+@onready var _sat_bar: ProgressBar = $Margin/Row/VBox/SatBar
+@onready var _portrait: CharacterPortrait = $Margin/Row/Portrait
 
 
 func _ready() -> void:
@@ -37,6 +38,8 @@ func setup(p: PlayerState, content: ContentDB) -> void:
 	_class_name = content.classes[p.class_key].display_name
 	_archetype_name = content.archetypes[p.archetype_key].display_name
 	_sat_bar.max_value = content.tuning.max_satisfaction
+	_portrait.setup(p.data.appearance, content)
+	tooltip_text = p.data.quirk
 	_class_label.add_theme_color_override("font_color", Palette.CLASS_COLORS.get(p.class_key, Palette.MUTED))
 
 
@@ -54,7 +57,8 @@ func refresh(targeted: bool, pickable: bool) -> void:
 	_hp_bar.value = _shown_hp
 	_sat_bar.value = _shown_sat
 	_target_label.visible = targeted
-	_class_label.text = Strings.UI_SEAT_LINE % [_class_name, _archetype_name, player.atk]
+	_class_label.text = Strings.UI_SEAT_LINE % [_class_name, player.atk, _archetype_name]
+	_portrait.set_dead(not player.alive)
 	_draw_state(targeted, pickable)
 
 
@@ -79,6 +83,7 @@ func show_satisfaction(delta: int) -> void:
 
 func show_death() -> void:
 	_set_hp(0)
+	_portrait.set_dead(true)
 	Fx.pop(self, Strings.UI_POP_DEAD, Palette.DANGER, 28)
 	_draw_dead()
 

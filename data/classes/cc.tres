@@ -11,3 +11,4 @@ satisfaction_malus = 6
 blurb = "Étourdit ton plus gros monstre. Veut qu'un stun passe."
 hp = 20
 atk = 4
+accent_colours = Array[Color]([Color(0.588, 0.373, 0.804, 1), Color(0.314, 0.431, 0.824, 1), Color(0.784, 0.314, 0.588, 1)])

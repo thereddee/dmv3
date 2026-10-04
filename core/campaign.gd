@@ -665,23 +665,12 @@ func _end_fight() -> void:
 
 # ===== RNG =====
 
-## Random class x archetype combos with distinct names.
 func _generate_candidates() -> Array[PlayerData]:
-	var class_keys := content.classes.keys()
-	var archetype_keys := content.archetypes.keys()
-	var names := _sample(Strings.PLAYER_NAMES, tuning.party_candidates)
+	var taken_names: Array[String] = []
 	var out: Array[PlayerData] = []
-	for i in names.size():
-		var cls: ClassData = content.classes[class_keys[rng.randi_range(0, class_keys.size() - 1)]]
-		var d := PlayerData.new()
-		d.display_name = names[i]
+	for i in tuning.party_candidates:
+		var d := PlayerGenerator.generate(rng, content, taken_names)
 		d.seat = i
-		d.class_key = cls.key
-		d.archetype_key = archetype_keys[rng.randi_range(0, archetype_keys.size() - 1)]
-		d.hp = cls.hp
-		d.atk = cls.atk
-		d.heal_power = cls.heal_power
-		d.stun_chance = cls.stun_chance
 		out.append(d)
 	return out
 

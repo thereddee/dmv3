@@ -25,7 +25,9 @@ func _ready() -> void:
 
 
 ## `entries[i]` is the card text; `locked[i]` greys it out. Empty `confirm_text` hides the button.
-func open(entries: Array[String], locked: Array[bool], p_max_select: int, confirm_text: String) -> void:
+## `card_size` and `left_pad` let the caller make room for a portrait on each card.
+func open(entries: Array[String], locked: Array[bool], p_max_select: int, confirm_text: String,
+		card_size: Vector2 = CARD_SIZE, left_pad: int = 8) -> void:
 	max_select = p_max_select
 	for child in _cards.get_children():
 		_cards.remove_child(child)
@@ -36,11 +38,11 @@ func open(entries: Array[String], locked: Array[bool], p_max_select: int, confir
 		button.text = entries[i]
 		button.toggle_mode = true
 		button.disabled = locked[i]
-		button.custom_minimum_size = CARD_SIZE
+		button.custom_minimum_size = card_size
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.add_theme_font_size_override("font_size", 13)
-		Palette.style_button(button)
+		Palette.style_button(button, false, false, left_pad)
 		button.toggled.connect(_on_toggled.bind(i))
 		_cards.add_child(button)
 		_buttons.append(button)
